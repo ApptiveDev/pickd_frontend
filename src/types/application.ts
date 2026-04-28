@@ -8,3 +8,13 @@ export type Application = {
   memo?: string;
   file?: File | null;
 };
+
+export type ApplicationFormData = {
+  company: string;
+  jobTitle: string;
+  position: string;
+  industry: string;
+  deadline: string;
+}
+
+export type RegistrationTab = 'URL' | 'PDF' | 'IMAGE' | 'MANUAL';
