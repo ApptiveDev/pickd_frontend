@@ -111,8 +111,6 @@ export default function CalendarBox({
 
   return (
     <div className="bg-[#F8FAFC] rounded-xl shadow-sm p-4">
-      <h3 className="font-bold mb-3">캘린더</h3>
-
       <button
         onClick={() => setIsModalOpen(true)}
         className="bg-[#2563EB] text-white px-3 py-1 rounded mb-3"
