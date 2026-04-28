@@ -30,6 +30,22 @@ function isSameDay(d1: Date, d2: Date) {
   );
 }
 
+function getThisWeekEvents(events: any[]) {
+  const now = new Date();
+
+  const start = new Date(now);
+  start.setDate(now.getDate() - now.getDay());
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setDate(start.getDate() + 7);
+
+  return events.filter((e) => {
+    const d = getEventDate(e);
+    return d && d >= start && d < end;
+  });
+}
+
 export default function CalendarBox({
   googleEvents,
   setGoogleEvents,
@@ -41,9 +57,12 @@ export default function CalendarBox({
   const [date, setDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const selectedEvents = googleEvents.filter((e) => {
-    const d = getEventDate(e);
-    return d && isSameDay(d, date);
+  const weeklyEvents = getThisWeekEvents(googleEvents).sort((a, b) => {
+    const da = getEventDate(a);
+    const db = getEventDate(b);
+
+    if (!da || !db) return 0;
+    return da.getTime() - db.getTime();
   });
 
   const mergedEvents = [
@@ -91,12 +110,12 @@ export default function CalendarBox({
   }, []);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4">
+    <div className="bg-[#F8FAFC] rounded-xl shadow-sm p-4">
       <h3 className="font-bold mb-3">캘린더</h3>
 
       <button
         onClick={() => setIsModalOpen(true)}
-        className="bg-blue-500 text-white px-3 py-1 rounded mb-3"
+        className="bg-[#2563EB] text-white px-3 py-1 rounded mb-3"
       >
         일정 추가
       </button>
@@ -113,6 +132,11 @@ export default function CalendarBox({
       )}
 
       <Calendar
+        prev2Label={null}
+        next2Label={null}
+        calendarType="gregory"
+        showNeighboringMonth={false}
+        formatDay={(_, date) => date.getDate().toString()}
         onChange={(value) => setDate(value as Date)}
         value={date}
         tileContent={({ date }) => {
@@ -143,39 +167,38 @@ export default function CalendarBox({
         }}
       />
 
-      <div className="mt-4">
-        <h4 className="font-semibold mb-2">선택한 날짜 일정</h4>
+      <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm">
+        <h4 className="font-semibold mb-2">일정</h4>
 
-        {selectedEvents.length === 0 && (
+        {weeklyEvents.length === 0 && (
           <p className="text-sm text-gray-400">일정 없음</p>
         )}
 
-        {selectedEvents.map((e, idx) => (
-          <div key={idx} className="bg-blue-50 p-2 rounded mb-2">
-            <p className="font-medium">{e.summary || "제목 없음"}</p>
-            <p className="text-sm text-gray-500">
-              {(() => {
-                const d = getEventDate(e);
-                return d ? d.toLocaleString("ko-KR") : "";
-              })()}
-            </p>
+        {weeklyEvents.map((e, idx) => {
+          const d = getEventDate(e);
+          if (!d) return null;
 
-            <button
-              onClick={async () => {
-                if (!e.id) return;
-                try {
-                  await deleteEvent(e.id);
-                  loadEvents();
-                } catch (err) {
-                  console.error("삭제 실패", err);
-                }
-              }}
-              className="text-red-500 text-xs mt-1"
-            >
-              삭제
-            </button>
-          </div>
-        ))}
+          return (
+            <div key={idx} className="flex items-center gap-2 mb-2">
+              <div className="w-4 h-4 bg-gray-300 rounded-full" />
+
+              <div>
+                <p className="text-sm font-medium">
+                  {e.summary || "제목 없음"}
+                </p>
+
+                <p className="text-xs text-gray-500">
+                  {`${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm">
+        <h4 className="font-semibold mb-2">할일</h4>
+        <p className="text-sm text-gray-400">아직 없음</p>
       </div>
     </div>
   );
