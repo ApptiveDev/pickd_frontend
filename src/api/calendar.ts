@@ -10,11 +10,11 @@ export async function createEvent(data: any) {
       location: "",
       description: "",
       start: {
-        dateTime: new Date(data.start).toISOString(),
+        dateTime: data.start.dateTime,
         timeZone: "Asia/Seoul",
       },
       end: {
-        dateTime: new Date(data.end).toISOString(),
+        dateTime: data.start.dateTime,
         timeZone: "Asia/Seoul",
       },
     }),

@@ -1,5 +1,24 @@
 import { useState, useEffect } from "react";
 
+function createDateTime(date: Date, time: string) {
+  if (!time) throw new Error("time 없음");
+
+  const parts = time.split(":");
+  if (parts.length < 2) throw new Error("time 형식 이상");
+
+  const [h, m] = parts;
+
+  const d = new Date(date);
+
+  d.setHours(Number(h));
+  d.setMinutes(Number(m));
+  d.setSeconds(0);
+
+  if (isNaN(d.getTime())) throw new Error("잘못된 날짜");
+
+  return d.toISOString();
+}
+
 export default function CalendarModal({
   onClose,
   onCreate,
@@ -10,22 +29,10 @@ export default function CalendarModal({
   selectedDate: Date;
 }) {
   const [summary, setSummary] = useState("");
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
+  const [time, setTime] = useState("");
 
   useEffect(() => {
-    if (selectedDate) {
-      const base = new Date(selectedDate);
-
-      base.setHours(9, 0);
-      const startStr = base.toISOString().slice(0, 16);
-
-      base.setHours(10, 0);
-      const endStr = base.toISOString().slice(0, 16);
-
-      setStart(startStr);
-      setEnd(endStr);
-    }
+    setTime("09:00");
   }, [selectedDate]);
 
   return (
@@ -42,16 +49,9 @@ export default function CalendarModal({
         />
 
         <input
-          type="datetime-local"
-          value={start}
-          onChange={(e) => setStart(e.target.value)}
-          className="border p-2 w-full mb-2"
-        />
-
-        <input
-          type="datetime-local"
-          value={end}
-          onChange={(e) => setEnd(e.target.value)}
+          type="time"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
           className="border p-2 w-full mb-2"
         />
 
@@ -60,15 +60,18 @@ export default function CalendarModal({
 
           <button
             onClick={() => {
-              if (!summary || !start) {
-                alert("제목이랑 시작 시간을 입력해 주세요.");
+              if (!summary || !time) {
+                alert("제목이랑 시간을 입력해 주세요.");
                 return;
               }
 
+              const dateTime = createDateTime(selectedDate, time);
+
               onCreate({
                 summary,
-                start,
-                end: end || start,
+                start: {
+                  dateTime,
+                },
               });
 
               onClose();
