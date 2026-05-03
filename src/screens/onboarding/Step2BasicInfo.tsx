@@ -7,12 +7,10 @@ export default function Step2BasicInfo() {
 
   const [form, setForm] = useState({
     nickname: "",
-    email: "",
+    intro: "",
     currentResidence: "",
     desiredLocations: [] as string[],
     detailedAddress: "",
-    intro: "",
-    profileImage: null as File | null,
   });
 
   const [locationInput, setLocationInput] = useState("");
@@ -61,29 +59,11 @@ export default function Step2BasicInfo() {
     <div className="flex justify-center items-center h-screen bg-gray-50">
       <div className="bg-white p-8 rounded-xl shadow w-[420px]">
         <h2 className="text-xl font-bold mb-6">기본 정보 입력</h2>
-
-        {/* 프로필 이미지 */}
-        <input
-          type="file"
-          onChange={(e) =>
-            setForm({ ...form, profileImage: e.target.files?.[0] || null })
-          }
-          className="mb-4"
-        />
-
         {/* 닉네임 */}
         <input
           placeholder="닉네임"
           value={form.nickname}
           onChange={(e) => setForm({ ...form, nickname: e.target.value })}
-          className="w-full border px-3 py-2 rounded mb-3"
-        />
-
-        {/* 이메일 */}
-        <input
-          placeholder="이메일"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
           className="w-full border px-3 py-2 rounded mb-3"
         />
 

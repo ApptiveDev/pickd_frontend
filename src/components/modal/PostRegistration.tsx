@@ -125,8 +125,8 @@ export default function PostRegistration({ onClose, onSubmit }: any) {
               <input
                 type="date"
                 className="p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                value={formData.deadline}
-                onChange={(e) => updateField("deadline", e.target.value)}
+                value={formData.deadlineDate}
+                onChange={(e) => updateField("deadlineDate", e.target.value)}
               />
             </div>
           </div>

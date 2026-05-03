@@ -13,8 +13,6 @@ export default function Step5PrepStatus() {
     hasResume: false,
     hasBaseEssay: false,
     hasPortfolio: false,
-    preparingExams: [] as string[],
-    targetApplyCount: 0,
     experiences: [] as any[],
     certifications: [] as any[],
   });
@@ -52,15 +50,6 @@ export default function Step5PrepStatus() {
         [key]: [...list, value],
       });
     }
-  };
-
-  const addExam = () => {
-    if (!examInput) return;
-    setForm({
-      ...form,
-      preparingExams: [...form.preparingExams, examInput],
-    });
-    setExamInput("");
   };
 
   const addExperience = () => {
@@ -193,37 +182,6 @@ export default function Step5PrepStatus() {
             </label>
           ))}
         </div>
-        {/* 시험 */}
-        <h3>준비 중 시험</h3>
-        <input
-          value={examInput}
-          onChange={(e) => setExamInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              addExam();
-            }
-          }}
-          className="border p-2 w-full"
-        />
-        <div className="flex gap-2 mt-2 mb-4">
-          {form.preparingExams.map((e, i) => (
-            <span key={i} className="bg-gray-200 px-2 py-1">
-              {e}
-            </span>
-          ))}
-        </div>
-        {/* 지원 횟수 */}
-        목표 지원 횟수
-        <input
-          type="number"
-          placeholder="목표 지원 횟수"
-          value={form.targetApplyCount}
-          onChange={(e) =>
-            setForm({ ...form, targetApplyCount: Number(e.target.value) })
-          }
-          className="border p-2 mb-4 w-full"
-        />
         {/* 경험 */}
         <h3>경험 추가</h3>
         <select
