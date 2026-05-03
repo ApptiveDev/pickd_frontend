@@ -3,12 +3,16 @@ import ApplicationStateCard from "../components/dashboard/main/ApplicationStateC
 import ApplicationTable from "../components/dashboard/main/ApplicationTable";
 import RightTab from "../components/dashboard/right/RightTab";
 import PostRegistration from "../components/modal/PostRegistration";
+import CompanyInfo from "../components/modal/CompanyInfo"; 
 import { useApplication } from "../context/ApplicationContext";
 import { Icon } from "@iconify/react";
 import { QuotePopup } from "../components/dashboard/QuotePopup";
 
 export default function MainScreen() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false); 
+  const [selectedApplication, setSelectedApplication] = useState<any>(null); 
+  
   const [googleEvents, setGoogleEvents] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const { addApplication } = useApplication();
@@ -24,6 +28,12 @@ export default function MainScreen() {
       .then((data) => setUser(data))
       .catch(() => setUser(null));
   }, []);
+
+  // 회사명 클릭 시 핸들러 호출 
+  const handleCompanyClick = (application: any) => {
+    setSelectedApplication(application);
+    setIsCompanyModalOpen(true);
+  };
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen">
@@ -66,7 +76,10 @@ export default function MainScreen() {
             <>
               <ApplicationStateCard />
               <div className="mt-6">
-                <ApplicationTable onAdd={() => setIsModalOpen(true)} />
+                <ApplicationTable 
+                  onAdd={() => setIsModalOpen(true)} 
+                  onCompanyClick={handleCompanyClick}
+                />
               </div>
             </>
           )}
@@ -89,6 +102,14 @@ export default function MainScreen() {
             addApplication(data);
             setIsModalOpen(false);
           }}
+        />
+      )}
+
+      {isCompanyModalOpen && selectedApplication && (
+        <CompanyInfo
+          isOpen={isCompanyModalOpen}
+          onClose={() => setIsCompanyModalOpen(false)}
+          data={selectedApplication}
         />
       )}
     </div>
