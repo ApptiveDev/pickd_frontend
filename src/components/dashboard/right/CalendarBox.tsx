@@ -4,6 +4,7 @@ import "react-calendar/dist/Calendar.css";
 import { useApplication } from "../../../context/ApplicationContext";
 import CalendarModal from "../../modal/CalendarModal";
 import { createEvent, deleteEvent } from "../../../api/calendar";
+import ScheduleSection from "./ScheduleSection";
 
 function getEventDate(e: any): Date | null {
   if (!e.start) return null;
@@ -57,21 +58,40 @@ function getThisWeekEvents(events: any[]) {
 export default function CalendarBox({
   defaultEvents,
   setDefaultEvents,
+  setWeeklyEvents,
 }: {
   defaultEvents: any[];
   setDefaultEvents: (events: any[]) => void;
+  setWeeklyEvents: (events: any[]) => void;
 }) {
   const { applications } = useApplication();
   const [date, setDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const weeklyEvents = getThisWeekEvents(defaultEvents).sort((a, b) => {
+  const allEvents = [
+    ...defaultEvents,
+    ...applications.flatMap((a) => [
+      a.interviewDate
+        ? { summary: "면접", start: { dateTime: a.interviewDate } }
+        : null,
+      a.applyDate
+        ? { summary: "제출", start: { dateTime: a.applyDate } }
+        : null,
+      a.deadlineDate
+        ? { summary: "마감", start: { dateTime: a.deadlineDate } }
+        : null,
+    ]),
+  ].filter(Boolean);
+
+  const weeklyEvents = getThisWeekEvents(allEvents).sort((a, b) => {
     const da = getEventDate(a);
     const db = getEventDate(b);
-
     if (!da || !db) return 0;
     return da.getTime() - db.getTime();
   });
+  useEffect(() => {
+    setWeeklyEvents(weeklyEvents);
+  }, [defaultEvents, applications]);
 
   const mergedEvents = [
     ...defaultEvents

@@ -55,26 +55,12 @@ export default function ApplicationTable({
   const EMPTY_COUNT = Math.max(0, 8 - filteredRows.length);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4">
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h2 className="font-bold text-lg">지원 현황</h2>
-          <p className="text-sm text-gray-400">
-            총 {applications.length}개의 지원
-          </p>
-        </div>
-
-        <button
-          onClick={onAdd}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-        >
-          + 추가
-        </button>
+    <div className="bg-white border border-[#E2E8F0] rounded-xl">
+      <div className="px-4 pt-4">
+        <ApplicationState />
       </div>
 
-      <ApplicationState />
-
-      <div className="grid grid-cols-[48px_1fr_1.4fr_1fr_1fr_1fr_0.8fr_1fr_0.8fr_1fr_0.8fr_1fr] bg-[#F1F5F9] text-xs text-gray-500 px-4 py-3 mt-4 border-b">
+      <div className="grid grid-cols-[48px_1fr_1.4fr_1fr_1fr_1fr_0.8fr_1fr_0.8fr_1fr_0.8fr_1fr] bg-[#F1F5F9] text-xs text-gray-500 px-4 py-3 mt-4 border-t border-b">
         <span></span>
         {[
           ["company", "기업명"],
@@ -82,14 +68,14 @@ export default function ApplicationTable({
           ["position", "직무"],
           ["industry", "산업"],
           ["deadlineDate", "지원기한"],
-          ["deadlineDate", "D-day"],
+          ["dday", "D-day"],
           ["status", "지원상태"],
           ["submitted", "제출"],
           ["checklistInComplete", "체크리스트"],
           ["documents", "서류"],
           ["notes", "메모"],
-        ].map(([key, label]) => (
-          <span key={key} className="relative">
+        ].map(([key, label], idx) => (
+          <span key={key + idx} className="relative">
             <div className="flex items-center gap-1 cursor-pointer">
               {label}
               <button onClick={() => toggleFilter(key)}>▼</button>
@@ -142,10 +128,10 @@ export default function ApplicationTable({
                   checked={isChecked}
                   onChange={() => toggleCheck(row.id)}
                 />
-
                 <div
-                  className={`w-5 h-5 border-2 rounded flex items-center justify-center
-                  ${isChecked ? "border-blue-500" : "border-gray-400"} bg-white`}
+                  className={`w-5 h-5 border-2 rounded flex items-center justify-center ${
+                    isChecked ? "border-blue-500" : "border-gray-400"
+                  } bg-white`}
                 >
                   {isChecked && (
                     <svg
@@ -160,29 +146,23 @@ export default function ApplicationTable({
                   )}
                 </div>
               </label>
-
               <span
                 className="cursor-pointer hover:text-green-600"
                 onClick={() => onCompanyClick(row)}
               >
                 {row.company}
               </span>
-
               <span>{row.jobTitle}</span>
-
               <div>
                 <span className="px-2 py-[2px] bg-orange-100 text-orange-500 rounded text-xs">
                   {row.position}
                 </span>
               </div>
-
               <span>{row.industry}</span>
               <span>{row.deadlineDate}</span>
-
               <span className="text-red-500 font-semibold">
                 {getDDay(row.deadlineDate)}
               </span>
-
               <div>
                 <span
                   className={`px-2 py-[2px] rounded text-xs ${getStatusStyle(
@@ -192,14 +172,13 @@ export default function ApplicationTable({
                   {row.status}
                 </span>
               </div>
-
-              <span>{row.applyDate || "-"}</span>
-              <span>{row.interviewDate || "-"}</span>
-              <span>{row.file ? "제출됨" : "미제출"}</span>
+              <span>{row.submitted ? "제출" : "미제출"}</span>
+              <span>{row.checklistInComplete ? "미완료" : "완료"}</span>
+              <span>{row.file ? "제출됨" : "없음"}</span>
               <span className="truncate">{row.memo || "-"}</span>
 
               <div className="flex gap-2">
-                <button onClick={() => onEdit(row)}>✏️</button>
+                <button onClick={() => onEdit && onEdit(row)}>✏️</button>
                 <button>🗑️</button>
               </div>
             </div>

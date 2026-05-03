@@ -160,13 +160,26 @@ export default function PostRegistration({ onClose, onSubmit }: any) {
                   value={formData.company}
                   onChange={(e) => updateField("company", e.target.value)}
                 />
-
+                <input
+                  type="text"
+                  placeholder="공고명 (예: 2026 하반기 SW 엔지니어 채용)"
+                  className="w-full py-3 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none"
+                  value={formData.jobTitle || ""}
+                  onChange={(e) => updateField("jobTitle", e.target.value)}
+                />
                 <input
                   type="text"
                   placeholder="직무 (예: 서비스 기획자)"
                   className="w-full py-3 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none"
                   value={formData.position}
                   onChange={(e) => updateField("position", e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="산업 (예: IT/테크)"
+                  className="w-full py-3 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none"
+                  value={formData.industry || ""}
+                  onChange={(e) => updateField("industry", e.target.value)}
                 />
 
                 <select
@@ -175,10 +188,10 @@ export default function PostRegistration({ onClose, onSubmit }: any) {
                   onChange={(e) => updateField("status", e.target.value)}
                 >
                   <option value="">지원 상태 선택</option>
-                  <option value="preparing">준비중</option>
-                  <option value="applied">지원완료</option>
-                  <option value="interview">면접진행</option>
-                  <option value="accepted">최종합격</option>
+                  <option value="준비중">준비중</option>
+                  <option value="지원완료">지원완료</option>
+                  <option value="면접진행">면접진행</option>
+                  <option value="최종합격">최종합격</option>
                 </select>
 
                 <div className="grid grid-cols-2 gap-3">

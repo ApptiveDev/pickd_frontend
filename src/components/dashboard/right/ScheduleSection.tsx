@@ -42,47 +42,49 @@ export default function ScheduleSection({
   return (
     <div
       onClick={onClick}
-      className="mt-4 bg-white rounded-2xl p-4 shadow-sm cursor-pointer max-h-[230px] overflow-y-auto"
+      className="mt-4 bg-white rounded-2xl p-4 shadow-sm cursor-pointer"
     >
       <h4 className="font-semibold mb-3">오늘의 일정</h4>
+      <div className="max-h-[180px] overflow-y-auto pr-1">
+        {events.length === 0 && (
+          <p className="text-sm text-gray-400">일정 없음</p>
+        )}
 
-      {events.length === 0 && (
-        <p className="text-sm text-gray-400">일정 없음</p>
-      )}
+        {events.map((e, idx) => {
+          const d = getSafeDate(e);
+          const category = getCategory(e);
 
-      {events.map((e, idx) => {
-        const d = getSafeDate(e);
-        const category = getCategory(e);
+          const dateText = d
+            ? `${d.getMonth() + 1}/${d.getDate()} ${String(
+                d.getHours(),
+              ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`
+            : "";
 
-        const dateText = d
-          ? `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(
-              2,
-              "0",
-            )}:${String(d.getMinutes()).padStart(2, "0")}`
-          : "";
+          return (
+            <div key={idx} className="flex gap-2 mb-3">
+              <div className="w-[15px] h-[15px] bg-gray-300 rounded-full mt-1 shrink-0" />
 
-        return (
-          <div key={idx} className="flex gap-2 mb-3">
-            <div className="w-[15px] h-[15px] bg-gray-300 rounded-full mt-1 shrink-0" />
+              <div className="flex-1">
+                <p className="text-[15px] font-medium break-words">
+                  {e.summary}
+                </p>
 
-            <div className="flex-1">
-              <p className="text-[15px] font-medium break-words">{e.summary}</p>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <p className="text-xs text-gray-500">{dateText}</p>
 
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                <p className="text-xs text-gray-500">{dateText}</p>
-
-                <span
-                  className={`text-xs px-2 py-[2px] rounded ${
-                    categoryColor[category] || categoryColor["일반"]
-                  }`}
-                >
-                  {category}
-                </span>
+                  <span
+                    className={`text-xs px-2 py-[2px] rounded ${
+                      categoryColor[category] || categoryColor["일반"]
+                    }`}
+                  >
+                    {category}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

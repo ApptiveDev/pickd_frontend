@@ -51,28 +51,28 @@ export default function ApplicationModal({ onClose }: any) {
 
           <input
             placeholder="회사명"
-            value={company}
+            value={company || ""}
             onChange={(e) => setCompany(e.target.value)}
             className="border p-2 w-full mb-2 rounded"
           />
 
           <input
             placeholder="공고명"
-            value={jobTitle}
+            value={jobTitle || ""}
             onChange={(e) => setJobTitle(e.target.value)}
             className="border p-2 w-full mb-2 rounded"
           />
 
           <input
             placeholder="직무"
-            value={position}
+            value={position || ""}
             onChange={(e) => setPosition(e.target.value)}
             className="border p-2 w-full mb-2 rounded"
           />
 
           <input
             placeholder="산업"
-            value={industry}
+            value={industry || ""}
             onChange={(e) => setIndustry(e.target.value)}
             className="border p-2 w-full mb-2 rounded"
           />

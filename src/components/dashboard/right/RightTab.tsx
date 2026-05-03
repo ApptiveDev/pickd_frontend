@@ -9,8 +9,7 @@ import type { Todo } from "../../../types/todo";
 
 export default function RightTab({ googleEvents, setGoogleEvents }: any) {
   const [modalType, setModalType] = useState<"schedule" | "todo" | null>(null);
-
-  const weeklyEvents = googleEvents; // 일단 그대로 사용
+  const [weeklyEvents, setWeeklyEvents] = useState<any[]>([]);
 
   const [todoData, setTodoData] = useState<Todo[]>([
     { id: "1", summary: "포트폴리오 수정", isCompleted: false },
@@ -29,6 +28,7 @@ export default function RightTab({ googleEvents, setGoogleEvents }: any) {
       <CalendarBox
         defaultEvents={googleEvents}
         setDefaultEvents={setGoogleEvents}
+        setWeeklyEvents={setWeeklyEvents}
       />
 
       <ScheduleSection

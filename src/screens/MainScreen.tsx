@@ -28,10 +28,14 @@ export default function MainScreen() {
       .catch(() => setUser(null));
   }, []);
 
-  // 회사명 클릭 시 핸들러 호출
   const handleCompanyClick = (application: any) => {
     setSelectedApplication(application);
     setIsCompanyModalOpen(true);
+  };
+
+  const handleEdit = (application: any) => {
+    setSelectedApplication(application);
+    setIsModalOpen(true);
   };
 
   return (
@@ -44,8 +48,13 @@ export default function MainScreen() {
 
               <div className="mt-6 space-y-4">
                 <ApplyInput onAdd={() => setIsModalOpen(true)} />
+
                 <ApplicationTable
-                  onAdd={() => setIsModalOpen(true)}
+                  onAdd={() => {
+                    setSelectedApplication(null);
+                    setIsModalOpen(true);
+                  }}
+                  onEdit={handleEdit}
                   onCompanyClick={handleCompanyClick}
                 />
               </div>
@@ -67,22 +76,32 @@ export default function MainScreen() {
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-2xl w-[600px]">
             <PostRegistration
-              onClose={() => setIsModalOpen(false)}
+              initialData={selectedApplication}
+              onClose={() => {
+                setIsModalOpen(false);
+                setSelectedApplication(null);
+              }}
               onSubmit={(data: any) => {
-                addApplication({
-                  id: Date.now(),
-                  company: data.company,
-                  jobTitle: data.jobTitle,
-                  position: data.position,
-                  industry: data.industry,
-                  deadlineDate: data.deadlineDate,
-                  applyDate: new Date().toISOString(),
-                  status: "진행중",
-                  submitted: false,
-                  checklistInComplete: true,
-                });
+                if (selectedApplication) {
+                  console.log("수정", data);
+                } else {
+                  addApplication({
+                    id: Date.now(),
+                    company: data.company || "",
+                    jobTitle: data.jobTitle || "",
+                    position: data.position || "",
+                    industry: data.industry || "",
+                    deadlineDate: data.deadlineDate || "",
+                    applyDate: data.applyDate || "",
+                    status: data.status || "진행중",
+                    memo: data.memo || "",
+                    submitted: false,
+                    checklistInComplete: true,
+                  });
+                }
 
                 setIsModalOpen(false);
+                setSelectedApplication(null);
               }}
             />
           </div>
