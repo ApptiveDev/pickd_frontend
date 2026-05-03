@@ -200,8 +200,10 @@ export default function PostRegistration({ onClose, onSubmit }: any) {
                     <input
                       type="date"
                       className="w-full py-2.5 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none text-[#475569]"
-                      value={formData.dueDate}
-                      onChange={(e) => updateField("dueDate", e.target.value)}
+                      value={formData.deadlineDate}
+                      onChange={(e) =>
+                        updateField("deadlineDate", e.target.value)
+                      }
                     />
                   </div>
                 </div>

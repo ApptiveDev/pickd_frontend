@@ -14,32 +14,8 @@ export default function Step3Education() {
     enrollmentStatus: "ENROLLED",
     graduationDate: "",
     gpa: "",
-    isTransfer: false,
-    exchangeExperience: false,
     campus: "",
-    courses: [] as string[],
-    file: null as File | null,
   });
-
-  const [courseInput, setCourseInput] = useState("");
-
-  const addCourse = () => {
-    if (!courseInput.trim()) return;
-    if (!form.courses.includes(courseInput)) {
-      setForm({
-        ...form,
-        courses: [...form.courses, courseInput],
-      });
-    }
-    setCourseInput("");
-  };
-
-  const removeCourse = (c: string) => {
-    setForm({
-      ...form,
-      courses: form.courses.filter((v) => v !== c),
-    });
-  };
 
   const submit = async () => {
     if (!form.schoolName) return alert("학교명 입력");
@@ -145,77 +121,12 @@ export default function Step3Education() {
           className="w-full border px-3 py-2 rounded mb-3"
         />
 
-        {/* 체크들 */}
-        <div className="flex gap-4 mb-3">
-          <label>
-            <input
-              type="checkbox"
-              checked={form.isTransfer}
-              onChange={(e) =>
-                setForm({ ...form, isTransfer: e.target.checked })
-              }
-            />{" "}
-            편입
-          </label>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={form.exchangeExperience}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  exchangeExperience: e.target.checked,
-                })
-              }
-            />{" "}
-            해외연수
-          </label>
-        </div>
-
         {/* 캠퍼스 */}
         <input
           placeholder="캠퍼스 (선택)"
           value={form.campus}
           onChange={(e) => setForm({ ...form, campus: e.target.value })}
           className="w-full border px-3 py-2 rounded mb-3"
-        />
-
-        {/* 수강 과목 */}
-        <div className="mb-3">
-          <input
-            placeholder="관련 수강과목 입력 후 Enter"
-            value={courseInput}
-            onChange={(e) => setCourseInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addCourse();
-              }
-            }}
-            className="w-full border px-3 py-2 rounded"
-          />
-
-          <div className="flex flex-wrap gap-2 mt-2">
-            {form.courses.map((c, i) => (
-              <span
-                key={i}
-                className="bg-blue-100 px-2 py-1 rounded flex gap-1"
-              >
-                {c}
-                <button onClick={() => removeCourse(c)}>✕</button>
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* 파일 업로드 */}
-        <input
-          type="file"
-          onChange={(e) =>
-            setForm({ ...form, file: e.target.files?.[0] || null })
-          }
-          className="mb-4"
         />
 
         <button
