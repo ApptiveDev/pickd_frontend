@@ -3,7 +3,18 @@ import { useApplicationForm } from "../../hooks/useApplicationForm";
 import type { RegistrationTab } from "../../types/application";
 import { LinkIcon, PdfIcon, ImageIcon, ManualIcon } from "../../assets";
 
-export default function PostRegistration({ onClose, onSubmit }: any) {
+interface PostRegistrationProps {
+  initialData?: any;
+  onClose: () => void;
+  editData?: any;
+  onSubmit?: (data: any) => void;
+}
+
+export default function PostRegistration({
+  onClose,
+  onSubmit,
+  editData,
+}: PostRegistrationProps) {
   const {
     activeTab,
     setActiveTab,
@@ -13,7 +24,7 @@ export default function PostRegistration({ onClose, onSubmit }: any) {
     imageInputRef,
     handleUploadClick,
     handleFileChange,
-  } = useApplicationForm();
+  } = useApplicationForm(editData);
 
   const tabs: { id: RegistrationTab; label: string; icon: React.ReactNode }[] =
     [
@@ -231,12 +242,11 @@ export default function PostRegistration({ onClose, onSubmit }: any) {
               </div>
             )}
           </div>
-
           <button
-            onClick={() => onSubmit(formData)}
-            className="w-full py-4 rounded-[16px] font-bold bg-[#0F172A] text-white text-[16px] hover:bg-[#1e293b] shadow-lg shadow-gray-200 transition-all active:scale-[0.98]"
+            onClick={() => onSubmit && onSubmit(formData)}
+            className="w-full bg-black text-white py-3 rounded-xl"
           >
-            등록하기
+            {editData ? "수정하기" : "등록하기"}
           </button>
         </div>
       </div>

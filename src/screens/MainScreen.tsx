@@ -14,7 +14,7 @@ export default function MainScreen() {
 
   const [googleEvents, setGoogleEvents] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
-  const { addApplication } = useApplication();
+  const { addApplication, updateApplication } = useApplication();
 
   useEffect(() => {
     fetch("/api/user", {
@@ -83,7 +83,7 @@ export default function MainScreen() {
               }}
               onSubmit={(data: any) => {
                 if (selectedApplication) {
-                  console.log("수정", data);
+                  updateApplication(selectedApplication.id, data);
                 } else {
                   addApplication({
                     id: Date.now(),
