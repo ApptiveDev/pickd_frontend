@@ -113,3 +113,79 @@ export const CloverIcon = React.memo(
     );
   }
 );
+
+export const DashboardIcon = React.memo(
+  ({ color, size = 20, className = "", ...props }: IconProps) => {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+        {...props}
+      >
+        <path
+          d="M11.1111 6.66667V0H20V6.66667H11.1111ZM0 11.1111V0H8.88889V11.1111H0ZM11.1111 20V8.88889H20V20H11.1111ZM0 20V13.3333H8.88889V20H0ZM2.22222 8.88889H6.66667V2.22222H2.22222V8.88889ZM13.3333 17.7778H17.7778V11.1111H13.3333V17.7778ZM13.3333 4.44444H17.7778V2.22222H13.3333V4.44444ZM2.22222 17.7778H6.66667V15.5556H2.22222V17.7778Z"
+          fill={color || "#94A3B8"}
+        />
+      </svg>
+    );
+  }
+);
+
+export const PortfolioIcon = React.memo(
+  ({ color, size = 24, className = "", ...props }: IconProps) => {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+        {...props}
+      >
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M14 4C14.7956 4 15.5587 4.31607 16.1213 4.87868C16.6839 5.44129 17 6.20435 17 7H20C20.5304 7 21.0391 7.21071 21.4142 7.58579C21.7893 7.96086 22 8.46957 22 9V19C22 19.5304 21.7893 20.0391 21.4142 20.4142C21.0391 20.7893 20.5304 21 20 21H4C3.46957 21 2.96086 20.7893 2.58579 20.4142C2.21071 20.0391 2 19.5304 2 19V9C2 8.46957 2.21071 7.96086 2.58579 7.58579C2.96086 7.21071 3.46957 7 4 7H7C7 6.20435 7.31607 5.44129 7.87868 4.87868C8.44129 4.31607 9.20435 4 10 4H14ZM15 9H9V19H15V9ZM20 9H17V19H20V9ZM7 9H4V19H7V9ZM14 6H10C9.75507 6.00003 9.51866 6.08996 9.33563 6.25272C9.15259 6.41547 9.03566 6.63975 9.007 6.883L9 7H15C15 6.75507 14.91 6.51866 14.7473 6.33563C14.5845 6.15259 14.3603 6.03566 14.117 6.007L14 6Z"
+          fill={color || "#94A3B8"}
+        />
+      </svg>
+    );
+  }
+);
+
+export const DocumentIcon = React.memo(
+  ({ color, size = 24, className = "", ...props }: IconProps) => {
+    const strokeColor = color || "#94A3B8";
+
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+        {...props}
+      >
+        <path
+          d="M4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8.342C20 8.07556 19.9467 7.81181 19.8433 7.56624C19.7399 7.32068 19.5885 7.09824 19.398 6.912L14.958 2.57C14.5844 2.20466 14.0826 2.00007 13.56 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4Z"
+          stroke={strokeColor}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14 2V6C14 6.53043 14.2107 7.03914 14.5858 7.41421C14.9609 7.78929 15.4696 8 16 8H20"
+          stroke={strokeColor}
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+);
