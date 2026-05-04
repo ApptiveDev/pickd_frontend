@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Schedule } from "../../../types/schedule";
 
 const categoryColor = {
@@ -10,12 +11,16 @@ const categoryColor = {
 interface ScheduleSectionProps {
   events: Schedule[];
   onClick: () => void;
+  selectedDate: Date | null;
 }
 
 export default function ScheduleSection({
   events,
   onClick,
+  selectedDate,
 }: ScheduleSectionProps) {
+  const [mode, setMode] = useState<"week" | "day">("week");
+
   const getSafeDate = (e: Schedule): Date | null => {
     if (!e.start) return null;
 
@@ -26,6 +31,18 @@ export default function ScheduleSection({
 
     return null;
   };
+
+  const filteredEvents =
+    mode === "week"
+      ? events
+      : events.filter((e) => {
+          const d = getSafeDate(e);
+          return (
+            selectedDate &&
+            d &&
+            d.toDateString() === selectedDate.toDateString()
+          );
+        });
 
   const getCategory = (e: Schedule) => {
     if (e.category) return e.category;
@@ -44,13 +61,26 @@ export default function ScheduleSection({
       onClick={onClick}
       className="mt-4 bg-white rounded-2xl p-4 border border-[#E2E8F0] shadow-[0px_1px_3px_0px_#00000040] cursor-pointer"
     >
-      <h4 className="text-[15px] text-[#0F172A] font-bold mb-3">이번주 일정</h4>
-      <div className="max-h-[180px] overflow-y-auto pr-1">
-        {events.length === 0 && (
-          <p className="text-sm text-gray-400">일정 없음</p>
+      <div className="flex items-center justify-between">
+        <h4 className="text-lg text-[#0F172A] font-bold mb-[15px] mt-2">
+          {mode === "week" ? "이번 주 일정" : "선택한 날짜 일정"}
+        </h4>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setMode(mode === "week" ? "day" : "week");
+          }}
+          className="text-sm text-gray-400 hover:text-gray-600"
+        >
+          {mode === "week" ? "선택한 날짜 일정" : "이번주 일정"}
+        </button>
+      </div>
+      <div className="h-[230px] overflow-y-auto pr-1">
+        {filteredEvents.length === 0 && (
+          <p className="text-sm font-semibold text-gray-400">일정 없음</p>
         )}
 
-        {events.map((e, idx) => {
+        {filteredEvents.map((e) => {
           const d = getSafeDate(e);
           const category = getCategory(e);
 
@@ -61,21 +91,20 @@ export default function ScheduleSection({
             : "";
 
           return (
-            <div key={idx} className="flex gap-2 mb-3">
-              <div className="w-[15px] h-[15px] bg-gray-300 rounded-full mt-1 shrink-0" />
-
+            <div key={e.id} className="flex gap-4 mb-3">
+              <div className="w-[15px] h-[15px] bg-[#D9D9D9] rounded-full mt-1 shrink-0" />
               <div className="flex-1">
-                <p className="text-[13px] font-semibold break-words">
+                <p className="text-[15px] font-semibold break-words">
                   {e.summary}
                 </p>
 
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <p className="text-[11px] text-[#64748B] font-regular">
+                  <p className="text-xs text-[#64748B] font-regular">
                     {dateText}
                   </p>
 
                   <span
-                    className={`text-[12px] font-semibold px-2 py-[2px] rounded ${
+                    className={`text-xs font-semibold px-2 py-[2px] rounded ${
                       categoryColor[category] || categoryColor["일반"]
                     }`}
                   >

@@ -114,14 +114,14 @@ export default function PostRegistration({
             {activeTab === "URL" && (
               <div className="space-y-4 animate-in fade-in duration-300 py-1">
                 <div className="flex items-center gap-2 px-1 text-[#64748B]">
-                  <LinkIcon size={14} />
+                  <LinkIcon size={20} />
                   <p className="text-[14px] font-semibold tracking-tight">
                     채용 공고 URL을 입력하세요.
                   </p>
                 </div>
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-500 transition-colors">
-                    <LinkIcon size={18} />
+                    <LinkIcon size={20} />
                   </div>
                   <input
                     type="text"

@@ -5,10 +5,10 @@ export default function Header({ user }: { user: any }) {
   return (
     <div className="flex justify-between items-start mt-[150px] mb-6">
       <div>
-        <h1 className="text-[40px] font-bold text-[#0F172A]">
+        <h1 className="text-[40px] font-bold text-[#0F172A] font-inter">
           {user ? `${user.nickname}님의 대시보드` : "대시보드"}
         </h1>
-        <p className="text-[20px] text-[#64748B] mt-1">
+        <p className="text-[20px] text-[#64748B] mt-1 font-inter">
           오늘도 한 걸음 더 가까이, 화이팅!
         </p>
       </div>

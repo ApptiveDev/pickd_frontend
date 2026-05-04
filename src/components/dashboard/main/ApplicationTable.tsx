@@ -77,7 +77,7 @@ export default function ApplicationTable({ onEdit, onCompanyClick }: any) {
       "D-day",
       "상태",
       "제출",
-      "체크리스트",
+      "할 일",
       "서류",
       "메모",
     ];
@@ -170,21 +170,27 @@ export default function ApplicationTable({ onEdit, onCompanyClick }: any) {
         <ApplicationState />
       </div>
       {checkedIds.length > 0 && (
-        <div className="mx-4 mt-4 flex items-center gap-2 rounded-xl bg-white px-4 py-3 shadow-sm border">
+        <div className="mx-4 mt-4 flex items-center gap-2 rounded-xl bg-white px-4 py-3 shadow-sm">
           <span className="text-sm text-gray-600">
             {checkedIds.length}개 선택됨
           </span>
 
           {checkedIds.length === 1 && (
-            <button onClick={handleEditSelected}>편집</button>
+            <button onClick={handleEditSelected} className="text-sm">
+              편집
+            </button>
           )}
 
-          <button onClick={handleDeleteSelected}>삭제</button>
-          <button onClick={handleCopySelected}>복사</button>
+          <button onClick={handleDeleteSelected} className="text-sm">
+            삭제
+          </button>
+          <button onClick={handleCopySelected} className="text-sm">
+            복사
+          </button>
         </div>
       )}
 
-      <div className="grid grid-cols-[48px_1fr_1.4fr_1fr_1fr_1fr_0.8fr_1fr_0.8fr_1fr_0.8fr_1fr] bg-[#F1F5F9] text-[13px] text-black font-[500] px-4 py-3">
+      <div className="grid grid-cols-[48px_1fr_1.4fr_1fr_1fr_1fr_0.8fr_1fr_0.8fr_1fr_0.8fr_1fr] bg-[#F1F5F9] text-sm text-black font-[500] px-4 py-3">
         <span></span>
 
         {[
@@ -196,7 +202,7 @@ export default function ApplicationTable({ onEdit, onCompanyClick }: any) {
           ["dday", "D-day"],
           ["status", "지원상태"],
           ["submitted", "제출"],
-          ["checklistInComplete", "체크리스트"],
+          ["checklistInComplete", "할 일"],
           ["documents", "서류"],
           ["notes", "메모"],
         ].map(([key, label], idx) => (
@@ -245,7 +251,7 @@ export default function ApplicationTable({ onEdit, onCompanyClick }: any) {
           return (
             <div
               key={row.id}
-              className="grid grid-cols-[48px_1fr_1.4fr_1fr_1fr_1fr_0.8fr_1fr_0.8fr_1fr_0.8fr_1fr] items-center px-4 py-3 text-[13px] border-b hover:bg-gray-50"
+              className="grid grid-cols-[48px_1fr_1.4fr_1fr_1fr_1fr_0.8fr_1fr_0.8fr_1fr_0.8fr_1fr] items-center px-4 py-3 text-sm border-b hover:bg-gray-50"
             >
               <label className="flex items-center justify-center cursor-pointer">
                 <input
@@ -270,25 +276,25 @@ export default function ApplicationTable({ onEdit, onCompanyClick }: any) {
               </label>
 
               <span
-                className="cursor-pointer text-black font-medium text-[13px] hover:text-green-600"
+                className="cursor-pointer text-black font-medium text-sm hover:text-green-600"
                 onClick={() => onCompanyClick(row)}
               >
                 {row.company}
               </span>
-              <span className="text-[13px] text-black font-regular">
+              <span className="text-sm text-black font-regular">
                 {row.jobTitle}
               </span>
-              <span className="text-[13px] text-black font-medium">
+              <span className="text-sm text-black font-medium">
                 {row.position}
               </span>
-              <span className="text-[13px] text-[#334155] font-regular">
+              <span className="text-sm text-[#334155] font-regular">
                 {row.industry}
               </span>
-              <span className="text-[13px] text-[#334155] font-regular">
+              <span className="text-sm text-[#334155] font-regular">
                 {row.deadlineDate}
               </span>
               <span
-                className={`text-[13px] font-semibold ${
+                className={`text-sm font-semibold ${
                   getDDay(row.deadlineDate) !== "-" &&
                   getDDay(row.deadlineDate) !== "마감" &&
                   parseInt(getDDay(row.deadlineDate).replace("D-", "")) <= 7
@@ -305,16 +311,16 @@ export default function ApplicationTable({ onEdit, onCompanyClick }: any) {
                 {row.status}
               </span>
 
-              <span className="text-[13px] text-[#64748B] font-regular">
+              <span className="text-sm text-[#64748B] font-regular">
                 {row.submitted ? "제출" : "미제출"}
               </span>
-              <span className="text-[12px] text-[#64748B] font-regular">
+              <span className="text-xs text-[#64748B] font-regular">
                 {row.checklistInComplete ? "미완료" : "완료"}
               </span>
-              <span className="text-[13px] text-[#64748B] font-regular">
+              <span className="text-sm text-[#64748B] font-regular">
                 {row.file ? "제출됨" : "없음"}
               </span>
-              <span className="truncate text-[13px] text-[#64748B] font-regular">
+              <span className="truncate text-sm text-[#64748B] font-regular">
                 {row.memo || "-"}
               </span>
 

@@ -2,30 +2,54 @@ import type { Todo } from "../../../types/todo";
 
 interface TodoSectionProps {
   todos: Todo[];
+  onAdd: () => void;
   onClick: () => void;
+  onToggle: (id: string) => void;
 }
 
-export default function TodoSection({ todos, onClick }: TodoSectionProps) {
+export default function TodoSection({
+  todos,
+  onAdd,
+  onToggle,
+  onClick,
+}: TodoSectionProps) {
   return (
     <div
       onClick={onClick}
       className="mt-4 bg-white rounded-2xl p-4 border border-[#E2E8F0] shadow-[0px_1px_3px_0px_#00000040] cursor-pointer"
     >
-      <h4 className="text-[15px] text-[#0F172A] font-bold mb-3">할 일</h4>
-      <div className="max-h-[180px] overflow-y-auto pr-1">
+      <div className="flex items-center justify-between">
+        <h4 className="text-lg text-[#0F172A] font-bold mb-[15px] mt-2">
+          할 일
+        </h4>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAdd();
+          }}
+          className="text-sm px-2 py-1 bg-[#2563EB] text-white rounded-md"
+        >
+          + 추가
+        </button>
+      </div>
+      <div className="h-[220px] overflow-y-auto pr-1">
         {todos.length === 0 && (
-          <p className="text-sm text-gray-400">아직 없음</p>
+          <p className="text-base text-gray-400">아직 없음</p>
         )}
 
         {todos.map((t) => (
-          <div key={t.id} className="flex items-center gap-2">
+          <div key={t.id} className="flex items-center gap-4">
             <div
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggle(t.id);
+              }}
               className={`
               w-[15px] h-[15px] rounded-full flex items-center justify-center
                       ${
                         t.isCompleted
                           ? "border-2 border-green-500 bg-white"
-                          : "bg-gray-300"
+                          : "bg-[#D9D9D9]"
                       }
             `}
             >
@@ -48,7 +72,8 @@ export default function TodoSection({ todos, onClick }: TodoSectionProps) {
 
             <p
               className={`
-              text-[15px]
+              text-base
+              font-regular
               ${t.isCompleted ? "line-through text-gray-400" : ""}
             `}
             >
