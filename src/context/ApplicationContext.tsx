@@ -4,7 +4,8 @@ import { type Application } from "../types/application";
 type ContextType = {
   applications: Application[];
   addApplication: (app: Application) => void;
-  updateApplication: (app: Application) => void;
+  updateApplication: (id: number, updatedData: any) => void;
+  deleteApplications: (ids: number[]) => void;
 
   getCounts: () => {
     total: number;
@@ -25,30 +26,26 @@ export function ApplicationProvider({ children }: any) {
     setApplications((prev) => [...prev, app]);
   };
 
-  const updateApplication = (updated: Application) => {
+  const deleteApplications = (ids: number[]) => {
+    setApplications((prev) => prev.filter((app) => !ids.includes(app.id)));
+  };
+
+  const updateApplication = (id: number, updatedData: any) => {
     setApplications((prev) =>
-      prev.map((a) => (a.id === updated.id ? updated : a)),
+      prev.map((app) => (app.id === id ? { ...app, ...updatedData } : app)),
     );
   };
   
   const getCounts = () => {
     const total = applications.length;
 
-    const ongoing = applications.filter(
-      (a) => a.status === "진행중",
-    ).length;
+    const ongoing = applications.filter((a) => a.status === "진행중").length;
 
-    const urgent = applications.filter(
-      (a) => a.status === "마감임박",
-    ).length;
+    const urgent = applications.filter((a) => a.status === "마감임박").length;
 
-    const done = applications.filter(
-      (a) => a.status === "마감완료",
-    ).length;
+    const done = applications.filter((a) => a.status === "마감완료").length;
 
-    const submitted = applications.filter(
-      (a) => a.submitted,
-    ).length;
+    const submitted = applications.filter((a) => a.submitted).length;
 
     const checklistInComplete = applications.filter(
       (a) => a.checklistInComplete,
@@ -62,6 +59,7 @@ export function ApplicationProvider({ children }: any) {
       value={{
         applications,
         addApplication,
+        deleteApplications,
         updateApplication,
         getCounts,
       }}

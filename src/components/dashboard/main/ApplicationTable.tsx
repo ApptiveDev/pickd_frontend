@@ -1,5 +1,6 @@
 import ApplicationState from "./ApplicationState";
 import { useApplication } from "../../../context/ApplicationContext";
+import { getStatusStyle } from "../../../utils/status";
 import { useState } from "react";
 
 const getDDay = (deadline?: string) => {
@@ -18,8 +19,12 @@ const getDDay = (deadline?: string) => {
   return `D-${diff}`;
 };
 
-export default function ApplicationTable() {
-  const { applications } = useApplication();
+export default function ApplicationTable({
+  onAdd,
+  onEdit,
+  onCompanyClick,
+}: any) {
+  const { applications, deleteApplications } = useApplication();
 
   const [checkedIds, setCheckedIds] = useState<number[]>([]);
   const [filterType, setFilterType] = useState<string | null>(null);
@@ -32,52 +37,156 @@ export default function ApplicationTable() {
     );
   };
 
+  const handleDeleteSelected = () => {
+    if (checkedIds.length === 0) {
+      alert("삭제할 항목을 선택해주세요.");
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      `${checkedIds.length}개의 항목을 삭제하시겠습니까?`,
+    );
+
+    if (!confirmDelete) return;
+
+    deleteApplications(checkedIds);
+    setCheckedIds([]);
+
+    alert("삭제되었습니다");
+  };
+
+  const handleEditSelected = () => {
+    if (checkedIds.length !== 1) return;
+    const target = applications.find((a) => a.id === checkedIds[0]);
+    if (target && onEdit) onEdit(target);
+  };
+
+  const handleCopySelected = async () => {
+    const selectedRows = applications.filter((app) =>
+      checkedIds.includes(app.id),
+    );
+
+    if (selectedRows.length === 0) {
+      alert("복사할 항목을 선택해주세요.");
+      return;
+    }
+
+    const headers = [
+      "기업명",
+      "공고명",
+      "직무",
+      "산업",
+      "지원기한",
+      "D-day",
+      "상태",
+      "제출",
+      "체크리스트",
+      "서류",
+      "메모",
+    ];
+
+    const escapeHtml = (value: any) =>
+      String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+
+    const html = `
+    <table border="1" style="border-collapse: collapse;">
+      <thead>
+        <tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr>
+      </thead>
+      <tbody>
+        ${selectedRows
+          .map(
+            (row) => `
+          <tr>
+            <td>${escapeHtml(row.company)}</td>
+            <td>${escapeHtml(row.jobTitle)}</td>
+            <td>${escapeHtml(row.position)}</td>
+            <td>${escapeHtml(row.industry)}</td>
+            <td>${escapeHtml(row.deadlineDate)}</td>
+            <td>${escapeHtml(getDDay(row.deadlineDate))}</td>
+            <td>${escapeHtml(row.status)}</td>
+            <td>${row.submitted ? "제출" : "미제출"}</td>
+            <td>${row.checklistInComplete ? "미완료" : "완료"}</td>
+            <td>${row.file ? "제출됨" : "없음"}</td>
+            <td>${escapeHtml(row.memo)}</td>
+          </tr>
+        `,
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
+    const text = [
+      headers.join("\t"),
+      ...selectedRows.map((row) =>
+        [
+          row.company,
+          row.jobTitle,
+          row.position,
+          row.industry,
+          row.deadlineDate,
+          getDDay(row.deadlineDate),
+          row.status,
+          row.submitted ? "제출" : "미제출",
+          row.checklistInComplete ? "미완료" : "완료",
+          row.file ? "제출됨" : "없음",
+          row.memo || "",
+        ].join("\t"),
+      ),
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          "text/html": new Blob([html], { type: "text/html" }),
+          "text/plain": new Blob([text], { type: "text/plain" }),
+        }),
+      ]);
+      alert("복사가 완료되었습니다.");
+    } catch (err) {
+      alert("복사에 실패했습니다.");
+    }
+  };
   const toggleFilter = (type: string) => {
     setIsOpen((prev) => (prev === type ? null : type));
     setFilterType(type);
   };
 
-  const tempRows = [
-    {
-      id: 1,
-      company: "삼성전자",
-      jobTitle: "SW 엔지니어",
-      position: "풀스택",
-      industry: "제조전자",
-      deadlineDate: "2026-04-30",
-      status: "지원완료",
-    },
-    {
-      id: 2,
-      company: "네이버",
-      jobTitle: "프론트엔드 개발자",
-      position: "프론트엔드",
-      industry: "IT/테크",
-      deadlineDate: "2026-05-07",
-      status: "진행중",
-    },
-  ];
-
-  const allRows = [...tempRows, ...applications];
-
   const getUniqueValues = (key: string) => {
-    const values = allRows.map((row: any) => row[key]).filter(Boolean);
+    const values = applications.map((row: any) => row[key]).filter(Boolean);
     return [...new Set(values)];
   };
 
-  const filteredRows = allRows.filter((row: any) => {
+  const filteredRows = applications.filter((row: any) => {
     if (!filterType || !filterValue) return true;
     return row[filterType] === filterValue;
   });
 
-  // 🔥 빈 row 계산
   const EMPTY_COUNT = Math.max(0, 8 - filteredRows.length);
 
   return (
-    <div className="bg-white border border-[#E2E8F0] rounded-xl relative">
-      <div className="flex items-center px-4 py-3 text-sm border-b border-[#E2E8F0]">
+    <div className="bg-white border border-[#E2E8F0] rounded-xl">
+      <div className="px-4 pt-4">
         <ApplicationState />
       </div>
+
+      {checkedIds.length > 0 && (
+        <div className="mx-4 mt-4 flex items-center gap-2 rounded-xl bg-white px-4 py-3 shadow-sm border">
+          <span className="text-sm text-gray-600">
+            {checkedIds.length}개 선택됨
+          </span>
+
+          {checkedIds.length === 1 && (
+            <button onClick={handleEditSelected}>편집</button>
+          )}
+
+          <button onClick={handleDeleteSelected}>삭제</button>
+          <button onClick={handleCopySelected}>복사</button>
+        </div>
+      )}
 
       {/* 헤더 */}
       <div className="grid grid-cols-[48px_1fr_1.4fr_1fr_1fr_1fr_0.8fr_1fr_0.8fr_1fr_0.8fr_1fr] bg-[#F1F5F9] text-xs text-gray-500 px-4 py-3 border-b">
@@ -89,14 +198,14 @@ export default function ApplicationTable() {
           ["position", "직무"],
           ["industry", "산업"],
           ["deadlineDate", "지원기한"],
-          ["deadlineDate", "D-day"],
+          ["dday", "D-day"],
           ["status", "지원상태"],
           ["submitted", "제출"],
           ["checklistInComplete", "체크리스트"],
           ["documents", "서류"],
           ["notes", "메모"],
-        ].map(([key, label]) => (
-          <span key={key} className="relative">
+        ].map(([key, label], idx) => (
+          <span key={key + idx} className="relative">
             <div className="flex items-center gap-1 cursor-pointer">
               {label}
               <button onClick={() => toggleFilter(key)}>▼</button>
@@ -132,10 +241,7 @@ export default function ApplicationTable() {
           </span>
         ))}
       </div>
-
-      {/* 🔥 스크롤 영역 */}
       <div className="max-h-[400px] overflow-y-auto">
-        {/* 실제 데이터 */}
         {filteredRows.map((row) => {
           const isChecked = checkedIds.includes(row.id);
 
@@ -153,9 +259,9 @@ export default function ApplicationTable() {
                 />
 
                 <div
-                  className={`w-5 h-5 border-2 rounded flex items-center justify-center transition
-                  ${isChecked ? "border-blue-500" : "border-gray-400"}
-                  bg-white`}
+                  className={`w-5 h-5 border-2 rounded flex items-center justify-center ${
+                    isChecked ? "border-blue-500" : "border-gray-400"
+                  }`}
                 >
                   {isChecked && (
                     <svg
@@ -171,35 +277,47 @@ export default function ApplicationTable() {
                 </div>
               </label>
 
-              <span>{row.company}</span>
+              <span
+                className="cursor-pointer hover:text-green-600"
+                onClick={() => onCompanyClick(row)}
+              >
+                {row.company}
+              </span>
               <span>{row.jobTitle}</span>
-              <div className="flex items-center">
-                <span className="px-2 py-[2px] bg-orange-100 text-orange-500 rounded text-xs">
-                  {row.position}
-                </span>
-              </div>
+              <span>{row.position}</span>
               <span>{row.industry}</span>
               <span>{row.deadlineDate}</span>
-              <span className="text-red-500 font-semibold">
-                {getDDay(row.deadlineDate)}
-              </span>
-              <div className="flex items-center">
-                <span className="px-2 py-[2px] bg-green-100 text-green-600 rounded text-xs">
-                  {row.status}
-                </span>
+              <span className="text-red-500">{getDDay(row.deadlineDate)}</span>
+
+              <span className={getStatusStyle(row.status)}>{row.status}</span>
+
+              <span>{row.submitted ? "제출" : "미제출"}</span>
+              <span>{row.checklistInComplete ? "미완료" : "완료"}</span>
+              <span>{row.file ? "제출됨" : "없음"}</span>
+              <span className="truncate">{row.memo || "-"}</span>
+
+              <div className="flex gap-2">
+                <button onClick={() => onEdit && onEdit(row)}>✏️</button>
+                <button
+                  onClick={() => {
+                    const ok = window.confirm("이 항목을 삭제하시겠습니까?");
+                    if (ok) {
+                      deleteApplications([row.id]);
+                      alert("삭제되었습니다");
+                    }
+                  }}
+                >
+                  🗑️
+                </button>
               </div>
-              <span className="text-gray-400">제출</span>
-              <span className="text-gray-400">3/5</span>
-              <span className="text-gray-400">1건</span>
-              <span className="text-gray-400">메모</span>
             </div>
           );
         })}
-        {/* 🔥 빈 row */}
+
         {Array.from({ length: EMPTY_COUNT }).map((_, i) => (
           <div
             key={`empty-${i}`}
-            className="grid grid-cols-[48px_1fr_1.4fr_1fr_1fr_1fr_0.8fr_1fr_0.8fr_1fr_0.8fr_1fr] items-center px-4 py-3 text-sm"
+            className="grid grid-cols-[48px_1fr_1.4fr_1fr_1fr_1fr_0.8fr_1fr_0.8fr_1fr_0.8fr_1fr] px-4 py-3"
           >
             {Array(12)
               .fill(null)

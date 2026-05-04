@@ -1,14 +1,19 @@
 import { useState, useRef } from "react";
 import type { RegistrationTab, Application } from "../types/application";
 
-export const useApplicationForm = () => {
+export const useApplicationForm = (initialData?: any) => {
   const [activeTab, setActiveTab] = useState<RegistrationTab>("PDF");
   const [formData, setFormData] = useState<Partial<Application>>({
-    company: "",
-    jobTitle: "",
-    position: "",
-    industry: "",
-    deadlineDate: "",
+    company: initialData?.company || "",
+    jobTitle: initialData?.jobTitle || "",
+    position: initialData?.position || "",
+    industry: initialData?.industry || "",
+    status: initialData?.status || "",
+    applyDate: initialData?.applyDate || "",
+    deadlineDate: initialData?.deadlineDate || "",
+    memo: initialData?.memo || "",
+    file: initialData?.file || null,
+
   });
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
