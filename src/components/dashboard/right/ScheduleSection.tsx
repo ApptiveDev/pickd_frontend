@@ -9,13 +9,15 @@ const categoryColor = {
 };
 
 interface ScheduleSectionProps {
-  events: Schedule[];
+  weeklyEvents: Schedule[];
+  selectedEvents: Schedule[];
   onClick: () => void;
   selectedDate: Date | null;
 }
 
 export default function ScheduleSection({
-  events,
+  weeklyEvents,
+  selectedEvents,
   onClick,
   selectedDate,
 }: ScheduleSectionProps) {
@@ -32,31 +34,7 @@ export default function ScheduleSection({
     return null;
   };
 
-  const filteredEvents =
-    mode === "week"
-      ? events.filter((e) => {
-          const d = getSafeDate(e);
-          if (!d) return false;
-
-          const now = new Date();
-
-          const start = new Date(now);
-          start.setDate(now.getDate() - now.getDay());
-          start.setHours(0, 0, 0, 0);
-
-          const end = new Date(start);
-          end.setDate(start.getDate() + 7);
-
-          return d >= start && d < end;
-        })
-      : events.filter((e) => {
-          const d = getSafeDate(e);
-          return (
-            selectedDate &&
-            d &&
-            d.toDateString() === selectedDate.toDateString()
-          );
-        });
+  const filteredEvents = mode === "week" ? weeklyEvents : selectedEvents;
 
   const getCategory = (e: Schedule) => {
     if (e.category) return e.category;
@@ -121,7 +99,6 @@ export default function ScheduleSection({
                   <p className="text-[15px] font-semibold break-words">
                     {e.summary}
                   </p>
-
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
                     <p className="text-xs text-[#64748B] font-regular">
                       {dateText}
