@@ -47,12 +47,16 @@ export default function ScheduleListModal({ schedules, onClose }: ScheduleListMo
   return `${month}/${day} ${time}`;
 };
 
-  const getCategoryStyle = (category: string = '일반') => {
+  const getCategoryStyle = (category: string = "일반") => {
     switch (category) {
-      case '면접': return 'bg-purple-50 text-purple-600';
-      case '마감': return 'bg-red-50 text-red-600';
-      case '제출': return 'bg-blue-50 text-blue-600';
-      default: return 'bg-gray-50 text-gray-600';
+      case "면접":
+        return "bg-purple-50 text-purple-600";
+      case "마감":
+        return "bg-red-50 text-red-600";
+      case "제출":
+        return "bg-blue-50 text-blue-600";
+      default:
+        return "bg-gray-50 text-gray-600";
     }
   };
 
@@ -76,8 +80,10 @@ export default function ScheduleListModal({ schedules, onClose }: ScheduleListMo
                 <span className="text-[14px] text-gray-400 tabular-nums font-medium">
                   {formatDateTime(item.start)}
                 </span>
-                <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${getCategoryStyle(item.category)}`}>
-                  {item.category || '일반'}
+                <span
+                  className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${getCategoryStyle(item.category)}`}
+                >
+                  {item.category || "일반"}
                 </span>
               </div>
             </div>
@@ -91,7 +97,7 @@ export default function ScheduleListModal({ schedules, onClose }: ScheduleListMo
         )}
       </div>
 
-      <button 
+      <button
         onClick={onClose}
         className="w-full mt-8 py-4 bg-[#1E293B] text-white rounded-2xl font-bold hover:bg-gray-800 transition-all active:scale-[0.98] shadow-lg"
       >

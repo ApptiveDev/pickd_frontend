@@ -27,7 +27,7 @@ export default function ApplicationState() {
         제출완료 {submitted}
       </span>
       <span className="text-[#64748B] text-[13px] font-[600]">
-        체크리스트 미완료 {checklist}
+        할 일 미완료 {checklist}
       </span>
     </div>
   );
