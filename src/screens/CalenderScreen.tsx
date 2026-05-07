@@ -1,5 +1,4 @@
 // src/pages/CalendarScreen.tsx
-import React from 'react';
 import MainCalendar from '../components/dashboard/calender/MainCalender';
 import Schedulebar from '../components/dashboard/calender/Schedulebar';
 import Deadlinebar from '../components/dashboard/calender/Deadlinebar';

@@ -44,11 +44,6 @@ const MainCalendar = () => {
       title: e.summary || "일정",
       type: (e.summary || "").includes("면접") ? "interview" : (e.summary || "").includes("마감") ? "deadline" : "default"
     })),
-    ...applications.flatMap((a: any) => [
-      a.interviewDate ? { date: new Date(a.interviewDate), title: `면접: ${a.companyName || '지원기업'}`, type: "interview" } : null,
-      a.applyDate ? { date: new Date(a.applyDate), title: `과제: ${a.companyName || '지원기업'}`, type: "apply" } : null,
-      a.deadlineDate ? { date: new Date(a.deadlineDate), title: `마감: ${a.companyName || '지원기업'}`, type: "deadline" } : null,
-    ]),
   ].filter((e): e is { date: Date; title: string; type: string } => e !== null && e.date !== null);
 
   return (
