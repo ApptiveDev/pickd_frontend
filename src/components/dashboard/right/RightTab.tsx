@@ -18,7 +18,7 @@ export default function RightTab({ googleEvents, setGoogleEvents }: any) {
   const timeouts = useRef<{ [key: string]: ReturnType<typeof setTimeout> }>({});
 
   const [todoData, setTodoData] = useState<Todo[]>([
-    { id: "1", summary: "포트폴리오 수정", isCompleted: false },
+    { id: "1", summary: "포트폴리오 수정", isCompleted: false, relatedJob: "네이버" },
   ]);
 
   const handleToggle = (id: string) => {
@@ -74,7 +74,7 @@ export default function RightTab({ googleEvents, setGoogleEvents }: any) {
 
       <TodoSection
         todos={todoData}
-        onAdd={() => setModalType("postTodo")} // 바로 모달을 띄우도록 변경
+        onAdd={() => setModalType("postTodo")} 
         onToggle={handleToggle}
         onClick={() => setModalType("todo")}
       />

@@ -31,13 +31,11 @@ export default function PostTodo({ onClose, onConfirm }: PostTodoProps) {
   };
 
   const handleConfirm = () => {
-    // 2. 필수 입력값 검증 (예: 제목은 필수)
     if (!formData.summary.trim()) {
       alert("제목을 입력해주세요.");
       return;
     }
 
-    // 3. 부모 컴포넌트로 데이터 전달
     onConfirm(formData);
   };
 
@@ -46,7 +44,6 @@ export default function PostTodo({ onClose, onConfirm }: PostTodoProps) {
       <h2 className="text-xl font-bold mb-4 text-[#0F172A]">할 일 추가</h2>
 
       <div className="space-y-4">
-        {/* 각 input에 name 속성을 추가하고 value와 onChange를 연결합니다. */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">제목</label>
           <input
@@ -82,11 +79,11 @@ export default function PostTodo({ onClose, onConfirm }: PostTodoProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">관련공고</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">연결 공고</label>
           <input
             name="relatedJob"
             type="text"
-            placeholder="관련 공고명"
+            placeholder="연결 공고명"
             value={formData.relatedJob}
             onChange={handleChange}
             className="w-full border p-2 rounded outline-none focus:border-blue-500"
