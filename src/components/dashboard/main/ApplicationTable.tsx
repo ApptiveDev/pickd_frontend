@@ -27,7 +27,7 @@ const getDDay = (deadline?: string) => {
 const formatDate = (date?: string) => {
   if (!date) return "-";
   const d = new Date(date);
-  return `${d.getMonth() + 1}/${d.getDate()}`;
+  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
 };
 
 export default function ApplicationTable({ onEdit, onCompanyClick }: any) {
@@ -111,7 +111,7 @@ export default function ApplicationTable({ onEdit, onCompanyClick }: any) {
             <td>${escapeHtml(row.jobTitle)}</td>
             <td>${escapeHtml(row.position)}</td>
             <td>${escapeHtml(row.industry)}</td>
-            <td>${escapeHtml(row.deadlineDate)}</td>
+            <td>${escapeHtml(row.applyDate)}</td>
             <td>${escapeHtml(getDDay(row.deadlineDate))}</td>
             <td>${escapeHtml(row.status)}</td>
             <td>${row.submitted ? "제출" : "미제출"}</td>
@@ -133,7 +133,7 @@ export default function ApplicationTable({ onEdit, onCompanyClick }: any) {
           row.jobTitle,
           row.position,
           row.industry,
-          row.deadlineDate,
+          row.applyDate,
           getDDay(row.deadlineDate),
           row.status,
           row.submitted ? "제출" : "미제출",
@@ -215,7 +215,7 @@ export default function ApplicationTable({ onEdit, onCompanyClick }: any) {
           ["jobTitle", "공고명"],
           ["position", "직무"],
           ["industry", "산업"],
-          ["deadlineDate", "지원기한"],
+          ["applyDate", "지원기한"],
           ["dday", "D-day"],
           ["status", "지원상태"],
           ["submitted", "제출"],
@@ -308,7 +308,7 @@ export default function ApplicationTable({ onEdit, onCompanyClick }: any) {
                 {row.industry}
               </span>
               <span className="text-sm text-[#334155] font-regular">
-                {formatDate(row.deadlineDate)}
+                {formatDate(row.applyDate)}
               </span>
               <span
                 className={`text-sm font-semibold ${

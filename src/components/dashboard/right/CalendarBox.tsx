@@ -69,20 +69,7 @@ export default function CalendarBox({
   const { applications } = useApplication();
   const [date, setDate] = useState(new Date());
 
-  const allEvents = [
-    ...defaultEvents,
-    ...applications.flatMap((a) => [
-      a.interviewDate
-        ? { summary: "면접", start: { dateTime: a.interviewDate } }
-        : null,
-      a.applyDate
-        ? { summary: "제출", start: { dateTime: a.applyDate } }
-        : null,
-      a.deadlineDate
-        ? { summary: "마감", start: { dateTime: a.deadlineDate } }
-        : null,
-    ]),
-  ].filter(Boolean);
+  const allEvents = [...defaultEvents].filter(Boolean);
 
   const weeklyEvents = getThisWeekEvents(allEvents).sort((a, b) => {
     const da = getEventDate(a);
@@ -98,27 +85,27 @@ export default function CalendarBox({
   const mergedEvents = [
     ...defaultEvents
       .map((e) => {
+        console.log(e.summary);
         const d = getEventDate(e);
         if (!d) return null;
 
         return {
+          id: e.id,
           date: d,
           type: getType(e.summary || ""),
+          company: "",
+          jobTitle: e.summary,
+          category:
+            getType(e.summary || "") === "interview"
+              ? "면접"
+              : getType(e.summary || "") === "deadline"
+                ? "마감"
+                : getType(e.summary || "") === "apply"
+                  ? "제출"
+                  : "일반",
         };
       })
-      .filter((e): e is { date: Date; type: EventType } => e !== null),
-
-    ...applications
-      .flatMap((a) => [
-        a.interviewDate
-          ? { date: new Date(a.interviewDate), type: "interview" }
-          : null,
-        a.applyDate ? { date: new Date(a.applyDate), type: "apply" } : null,
-        a.deadlineDate
-          ? { date: new Date(a.deadlineDate), type: "deadline" }
-          : null,
-      ])
-      .filter((e): e is { date: Date; type: EventType } => e !== null),
+      .filter((e) => e !== null),
   ];
 
   const loadEvents = () => {

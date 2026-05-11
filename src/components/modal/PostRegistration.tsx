@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import type { RegistrationTab } from "../../types/application";
-import { useApplication } from "../../context/ApplicationContext";
 import { useApplicationForm } from "../../hooks/useApplicationForm";
 import { LinkIcon, PdfIcon, ImageIcon, ManualIcon } from "../../assets";
 import { createApplication, updateApplication } from "../../api/application";
@@ -8,16 +7,14 @@ interface PostRegistrationProps {
   initialData?: any;
   onClose: () => void;
   editData?: any;
-  onSubmit?: (data: any) => void;
+  onSuccess?: () => Promise<void>;
 }
 
 export default function PostRegistration({
   onClose,
-  onSubmit,
+  onSuccess,
   editData,
 }: PostRegistrationProps) {
-  const { handleSubmit } = useApplication();
-
   const {
     activeTab,
     setActiveTab,
@@ -55,7 +52,7 @@ export default function PostRegistration({
   useEffect(() => {
     if (editData) {
       Object.entries(editData).forEach(([key, value]) => {
-        if (key === "applyDate" || key === "deadline") {
+        if (key === "applyDate" || key === "deadlineDate") {
           const date = value ? String(value).split("T")[0] : "";
           updateField(key as any, date);
         } else {
@@ -280,12 +277,8 @@ export default function PostRegistration({
               } else {
                 await createApplication(data); // 생성
               }
-              handleSubmit({
-                ...formData,
-                id: editData?.id,
-              });
+              await onSuccess?.();
 
-              onSubmit?.(data);
               onClose();
             }}
             className="w-full bg-black text-white py-3 rounded-xl"

@@ -63,7 +63,8 @@ export default function RightTab({ googleEvents, setGoogleEvents }: any) {
       />
 
       <ScheduleSection
-        events={[...weeklyEvents, ...selectedEvents]}
+        weeklyEvents={weeklyEvents}
+        selectedEvents={selectedEvents}
         selectedDate={selectedDate}
         onClick={() => setModalType("schedule")}
       />

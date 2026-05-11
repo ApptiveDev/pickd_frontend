@@ -1,14 +1,9 @@
 import { type Application } from "../types/application";
 import { createContext, useContext, useState, useEffect } from "react";
-import {
-  createApplication,
-  updateApplication,
-  deleteApplication,
-} from "../api/application";
+import { deleteApplication } from "../api/application";
 
 type ContextType = {
   applications: Application[];
-  handleSubmit: (data: Partial<Application>) => Promise<void>;
   deleteApplications: (ids: number[]) => Promise<void>;
   loadData: () => Promise<void>;
 
@@ -38,16 +33,6 @@ export function ApplicationProvider({ children }: any) {
     loadData();
   }, []);
 
-  // 추가, 수정 통합
-  const handleSubmit = async (data: Partial<Application>) => {
-    if (data.id) {
-      await updateApplication(data.id, data);
-    } else {
-      await createApplication(data);
-    }
-    await loadData();
-  };
-
   const deleteApplicationsHandler = async (ids: number[]) => {
     await Promise.all(ids.map((id) => deleteApplication(id)));
     await loadData();
@@ -75,7 +60,6 @@ export function ApplicationProvider({ children }: any) {
     <AppContext.Provider
       value={{
         applications,
-        handleSubmit,
         deleteApplications: deleteApplicationsHandler,
         getCounts,
         loadData,

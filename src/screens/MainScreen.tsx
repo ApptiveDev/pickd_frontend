@@ -16,7 +16,8 @@ export default function MainScreen() {
 
   const [googleEvents, setGoogleEvents] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
-  const { handleSubmit } = useApplication();
+
+  const { loadData } = useApplication();
 
   useEffect(() => {
     fetch("/api/user", {
@@ -28,6 +29,24 @@ export default function MainScreen() {
       })
       .then((data) => setUser(data))
       .catch(() => setUser(null));
+  }, []);
+
+  const loadCalendarEvents = async () => {
+    try {
+      const res = await fetch("/api/calendar/events", {
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error();
+
+      const data = await res.json();
+      setGoogleEvents(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  useEffect(() => {
+    loadCalendarEvents();
   }, []);
 
   const handleCompanyClick = (application: any) => {
@@ -80,30 +99,9 @@ export default function MainScreen() {
                 setSelectedApplication(null);
                 setEditData(null);
               }}
-              onSubmit={(data: any) => {
-                if (editData) {
-                  handleSubmit({
-                    ...data,
-                    id: editData.id,
-                  });
-                } else {
-                  handleSubmit({
-                    id: Date.now(),
-                    company: data.company || "",
-                    jobTitle: data.jobTitle || "",
-                    position: data.position || "",
-                    industry: data.industry || "",
-                    deadlineDate: data.deadlineDate || "",
-                    applyDate: data.applyDate || "",
-                    status: data.status || "진행중",
-                    memo: data.memo || "",
-                    submitted: false,
-                    checklistInComplete: true,
-                  });
-                }
-                setIsModalOpen(false);
-                setSelectedApplication(null);
-                setEditData(null);
+              onSuccess={async () => {
+                await loadData();
+                await loadCalendarEvents();
               }}
               editData={editData}
             />
