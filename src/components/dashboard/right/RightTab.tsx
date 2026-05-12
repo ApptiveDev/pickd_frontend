@@ -1,48 +1,50 @@
 import { useState } from "react";
 import CalendarBox from "./CalendarBox";
-import ScheduleSection from "./ScheduleSection";
 import TodoSection from "./TodoSection";
+import TodoList from "../../modal/TodoList";
+import ScheduleSection from "./ScheduleSection";
 import ModalLayout from "../../modal/ModalLayout";
 import ScheduleList from "../../modal/ScheduleList";
-import TodoList from "../../modal/TodoList";
-import type { Todo } from "../../../types/todo";
 
-export default function RightTab({ googleEvents, setGoogleEvents }: any) {
+export default function RightTab({
+  todoData,
+  googleEvents,
+  setGoogleEvents,
+  focusedApplication,
+}: any) {
   const [modalType, setModalType] = useState<"schedule" | "todo" | null>(null);
-
-  const weeklyEvents = googleEvents; // 일단 그대로 사용
-
-  const [todoData, setTodoData] = useState<Todo[]>([
-    { id: "1", summary: "포트폴리오 수정", isCompleted: false },
-  ]);
-
-  const handleToggle = (id: string) => {
-    setTodoData((prev) =>
-      prev.map((t) =>
-        t.id === id ? { ...t, isCompleted: !t.isCompleted } : t,
-      ),
-    );
-  };
+  const [selectedEvents, setSelectedEvents] = useState<any[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [weeklyEvents, setWeeklyEvents] = useState<any[]>([]);
 
   return (
-    <div className="w-[95%]">
+    <div className="w-[95%] bg-[F8FAFC]">
       <CalendarBox
         defaultEvents={googleEvents}
         setDefaultEvents={setGoogleEvents}
+        setWeeklyEvents={setWeeklyEvents}
+        setSelectedDate={setSelectedDate}
+        setSelectedEvents={setSelectedEvents}
       />
 
       <ScheduleSection
-        events={weeklyEvents}
+        weeklyEvents={weeklyEvents}
+        selectedEvents={selectedEvents}
+        selectedDate={selectedDate}
         onClick={() => setModalType("schedule")}
       />
 
-      <TodoSection todos={todoData} onClick={() => setModalType("todo")} />
+      <TodoSection
+        todos={todoData}
+        focusedApplication={focusedApplication}
+        onClick={() => setModalType("todo")}
+      />
 
       {modalType && (
         <ModalLayout
           isOpen={modalType !== null}
           onClose={() => setModalType(null)}
-          title={modalType === "schedule" ? "일정" : "할일"}
+          title={modalType === "schedule" ? "이번주 일정" : "할 일"}
         >
           {modalType === "schedule" && (
             <ScheduleList
@@ -54,7 +56,6 @@ export default function RightTab({ googleEvents, setGoogleEvents }: any) {
           {modalType === "todo" && (
             <TodoList
               todos={todoData}
-              onToggle={handleToggle}
               onClose={() => setModalType(null)}
             />
           )}

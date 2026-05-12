@@ -1,18 +1,18 @@
-import * as React from "react";
-import { useApplicationForm } from "../../hooks/useApplicationForm";
+import { useEffect } from "react";
 import type { RegistrationTab } from "../../types/application";
+import { useApplicationForm } from "../../hooks/useApplicationForm";
 import { LinkIcon, PdfIcon, ImageIcon, ManualIcon } from "../../assets";
-
+import { createApplication, updateApplication } from "../../api/application";
 interface PostRegistrationProps {
   initialData?: any;
   onClose: () => void;
   editData?: any;
-  onSubmit?: (data: any) => void;
+  onSuccess?: () => Promise<void>;
 }
 
 export default function PostRegistration({
   onClose,
-  onSubmit,
+  onSuccess,
   editData,
 }: PostRegistrationProps) {
   const {
@@ -48,7 +48,23 @@ export default function PostRegistration({
         label: "직접 입력",
         icon: <ManualIcon size={14} color="currentColor" />,
       },
-  ];
+    ];
+  useEffect(() => {
+    if (editData) {
+      Object.entries(editData).forEach(([key, value]) => {
+        if (
+          key === "applyDate" ||
+          key === "deadlineDate" ||
+          key === "interviewDate"
+        ) {
+          const date = value ? String(value).split("T")[0] : "";
+          updateField(key as any, date);
+        } else {
+          updateField(key as any, value as string);
+        }
+      });
+    }
+  }, [editData]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
@@ -76,55 +92,55 @@ export default function PostRegistration({
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-[13px] font-bold transition-all ${
                     isActive
                       ? "bg-white shadow-sm text-[#0F172A]"
                       : "text-[#94A3B8] hover:text-gray-500"
-            }`}
-          >
+                  }`}
+                >
                   {tab.icon}
                   <span className="whitespace-nowrap leading-none">
-            {tab.label}
+                    {tab.label}
                   </span>
-          </button>
+                </button>
               );
             })}
-      </div>
+          </div>
 
-      <input
-        type="file"
-        ref={pdfInputRef}
-        onChange={(e) => handleFileChange(e, "PDF")}
-        accept=".pdf"
-        className="hidden"
-      />
-      <input
-        type="file"
-        ref={imageInputRef}
-        onChange={(e) => handleFileChange(e, "IMAGE")}
-        accept="image/*"
-        className="hidden"
-      />
+          <input
+            type="file"
+            ref={pdfInputRef}
+            onChange={(e) => handleFileChange(e, "PDF")}
+            accept=".pdf"
+            className="hidden"
+          />
+          <input
+            type="file"
+            ref={imageInputRef}
+            onChange={(e) => handleFileChange(e, "IMAGE")}
+            accept="image/*"
+            className="hidden"
+          />
 
           {/* 컨텐츠 영역: 내부 스크롤 적용 */}
           <div className="max-h-[360px] overflow-y-auto mb-8 pr-1 custom-scrollbar">
-        {activeTab === "URL" && (
+            {activeTab === "URL" && (
               <div className="space-y-4 animate-in fade-in duration-300 py-1">
                 <div className="flex items-center gap-2 px-1 text-[#64748B]">
-                  <LinkIcon size={14} />
+                  <LinkIcon size={20} />
                   <p className="text-[14px] font-semibold tracking-tight">
                     채용 공고 URL을 입력하세요.
-            </p>
+                  </p>
                 </div>
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-500 transition-colors">
-                    <LinkIcon size={18} />
+                    <LinkIcon size={20} />
                   </div>
-            <input
-              type="text"
+                  <input
+                    type="text"
                     placeholder="공고 상세 페이지의 URL을 붙여넣어 주세요"
                     className="w-full py-3.5 pl-11 pr-4 border border-[#E2E8F0] rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder:text-gray-300 text-[14px]"
                     value={(formData as any).url || ""}
@@ -134,21 +150,21 @@ export default function PostRegistration({
                 <p className="text-[12px] text-[#94A3B8] font-medium leading-relaxed px-1">
                   * AI가 공고 내용을 자동으로 분석하여 가져옵니다.
                 </p>
-          </div>
-        )}
+              </div>
+            )}
 
-        {(activeTab === "PDF" || activeTab === "IMAGE") && (
-          <div
-            onClick={handleUploadClick}
+            {(activeTab === "PDF" || activeTab === "IMAGE") && (
+              <div
+                onClick={handleUploadClick}
                 className="border-2 border-dashed border-[#E2E8F0] rounded-[16px] flex flex-col items-center justify-center py-12 px-6 hover:border-[#0F172A] hover:bg-blue-50/10 transition-all cursor-pointer group"
-          >
+              >
                 <div className="mb-3 text-[#94A3B8] group-hover:text-blue-500 transition-all group-hover:scale-105">
                   {activeTab === "PDF" ? (
                     <PdfIcon size={36} color="#64748B" />
                   ) : (
                     <ImageIcon size={34} />
                   )}
-            </div>
+                </div>
                 <div className="text-center">
                   <p className="text-[#475569] text-[15px] font-bold">
                     {activeTab === "PDF"
@@ -159,40 +175,41 @@ export default function PostRegistration({
                     최대 {activeTab === "PDF" ? "10MB" : "5MB"} 지원
                   </p>
                 </div>
-          </div>
-        )}
+              </div>
+            )}
 
-        {activeTab === "MANUAL" && (
+            {activeTab === "MANUAL" && (
               <div className="flex flex-col gap-3 animate-in fade-in duration-300 py-1">
-            <input
-              type="text"
+                <input
+                  type="text"
                   placeholder="회사명"
                   className="w-full py-3 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none"
-              value={formData.company}
-              onChange={(e) => updateField("company", e.target.value)}
-            />
-              <input
-                type="text"
+                  value={formData.company}
+                  onChange={(e) => updateField("company", e.target.value)}
+                />
+                <input
+                  type="text"
                   placeholder="공고명 (예: 2026 하반기 SW 엔지니어 채용)"
                   className="w-full py-3 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none"
                   value={formData.jobTitle || ""}
-                onChange={(e) => updateField("jobTitle", e.target.value)}
-              />
-              <input
-                type="text"
-                  placeholder="직무 (예: 서비스 기획자)"
-                  className="w-full py-3 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none"
-                value={formData.position}
-                onChange={(e) => updateField("position", e.target.value)}
-              />
-              <input
-                type="text"
-                  placeholder="산업 (예: IT/테크)"
-                  className="w-full py-3 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none"
-                  value={formData.industry || ""}
-                onChange={(e) => updateField("industry", e.target.value)}
-              />
-
+                  onChange={(e) => updateField("jobTitle", e.target.value)}
+                />
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    placeholder="직무 (예: 서비스 기획자)"
+                    className="w-full py-3 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none"
+                    value={formData.position}
+                    onChange={(e) => updateField("position", e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="산업 (예: IT/테크)"
+                    className="w-full py-3 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none"
+                    value={formData.industry || ""}
+                    onChange={(e) => updateField("industry", e.target.value)}
+                  />
+                </div>
                 <select
                   className="w-full py-3 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none bg-white text-[#0F172A]"
                   value={formData.status}
@@ -205,13 +222,13 @@ export default function PostRegistration({
                   <option value="최종합격">최종합격</option>
                 </select>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <div className="flex flex-col gap-1">
                     <label className="text-[11px] font-bold text-[#94A3B8] ml-1">
                       지원일
                     </label>
-              <input
-                type="date"
+                    <input
+                      type="date"
                       className="w-full py-2.5 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none text-[#475569]"
                       value={formData.applyDate}
                       onChange={(e) => updateField("applyDate", e.target.value)}
@@ -224,12 +241,25 @@ export default function PostRegistration({
                     <input
                       type="date"
                       className="w-full py-2.5 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none text-[#475569]"
-                value={formData.deadlineDate}
+                      value={formData.interviewDate}
+                      onChange={(e) =>
+                        updateField("interviewDate", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[11px] font-bold text-[#94A3B8] ml-1">
+                      마감일
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full py-2.5 px-4 border border-[#E2E8F0] rounded-xl text-[14px] outline-none text-[#475569]"
+                      value={formData.deadlineDate}
                       onChange={(e) =>
                         updateField("deadlineDate", e.target.value)
                       }
-              />
-            </div>
+                    />
+                  </div>
                 </div>
 
                 <textarea
@@ -239,15 +269,43 @@ export default function PostRegistration({
                   value={formData.memo}
                   onChange={(e) => updateField("memo", e.target.value)}
                 />
+              </div>
+            )}
           </div>
-        )}
-      </div>
-        <button
-            onClick={() => onSubmit && onSubmit(formData)}
+          <button
+            onClick={async () => {
+              const data = {
+                company: formData.company,
+                jobTitle: formData.jobTitle,
+                position: formData.position,
+                industry: formData.industry,
+                status: formData.status,
+                memo: formData.memo,
+
+                applyDate: formData.applyDate
+                  ? formData.applyDate + "T00:00:00"
+                  : null,
+                interviewDate: formData.interviewDate
+                  ? formData.interviewDate + "T00:00:00"
+                  : null,
+                deadlineDate: formData.deadlineDate
+                  ? formData.deadlineDate + "T00:00:00"
+                  : null,
+              };
+
+              if (editData) {
+                await updateApplication(editData.id, data); // 수정
+              } else {
+                await createApplication(data); // 생성
+              }
+              await onSuccess?.();
+
+              onClose();
+            }}
             className="w-full bg-black text-white py-3 rounded-xl"
-        >
+          >
             {editData ? "수정하기" : "등록하기"}
-        </button>
+          </button>
         </div>
       </div>
     </div>

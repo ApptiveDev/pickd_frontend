@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { useEffect, useState } from "react";
 import { useApplication } from "../../../context/ApplicationContext";
-import CalendarModal from "../../modal/CalendarModal";
-import { createEvent, deleteEvent } from "../../../api/calendar";
 
 function getEventDate(e: any): Date | null {
   if (!e.start) return null;
@@ -23,6 +21,7 @@ function getEventDate(e: any): Date | null {
 }
 
 type EventType = "interview" | "apply" | "deadline" | "default";
+
 function getType(summary: string): EventType {
   if (summary.includes("면접")) return "interview";
   if (summary.includes("제출")) return "apply";
@@ -56,135 +55,107 @@ function getThisWeekEvents(events: any[]) {
 
 export default function CalendarBox({
   defaultEvents,
-  setDefaultEvents,
+  setWeeklyEvents,
+  setSelectedDate,
+  setSelectedEvents,
 }: {
   defaultEvents: any[];
   setDefaultEvents: (events: any[]) => void;
+  setWeeklyEvents: (events: any[]) => void;
+  setSelectedDate: (date: Date | null) => void;
+  setSelectedEvents: (events: any[]) => void;
 }) {
-  const { applications } = useApplication();
   const [date, setDate] = useState(new Date());
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const weeklyEvents = getThisWeekEvents(defaultEvents).sort((a, b) => {
+  const allEvents = [...defaultEvents].filter(Boolean);
+
+  const weeklyEvents = getThisWeekEvents(allEvents).sort((a, b) => {
     const da = getEventDate(a);
     const db = getEventDate(b);
-
     if (!da || !db) return 0;
     return da.getTime() - db.getTime();
   });
 
+  useEffect(() => {
+    setWeeklyEvents(weeklyEvents);
+  }, [defaultEvents]);
+
   const mergedEvents = [
     ...defaultEvents
       .map((e) => {
+        console.log(e.summary);
         const d = getEventDate(e);
         if (!d) return null;
 
         return {
+          id: e.id,
           date: d,
           type: getType(e.summary || ""),
+          company: "",
+          jobTitle: e.summary,
+          category:
+            getType(e.summary || "") === "interview"
+              ? "면접"
+              : getType(e.summary || "") === "deadline"
+                ? "마감"
+                : getType(e.summary || "") === "apply"
+                  ? "제출"
+                  : "일반",
         };
       })
-      .filter((e): e is { date: Date; type: EventType } => e !== null),
-
-    ...applications
-      .flatMap((a) => [
-        a.interviewDate
-          ? { date: new Date(a.interviewDate), type: "interview" }
-          : null,
-
-        a.applyDate ? { date: new Date(a.applyDate), type: "apply" } : null,
-
-        a.deadlineDate
-          ? { date: new Date(a.deadlineDate), type: "deadline" }
-          : null,
-      ])
-      .filter((e): e is { date: Date; type: EventType } => e !== null),
+      .filter((e) => e !== null),
   ];
 
-  const loadEvents = () => {
-    fetch("/api/calendar/events", {
-      credentials: "include",
-    })
-      .then(async (res) => {
-        console.log("calendar status:", res.status);
-
-        const text = await res.text();
-        console.log("calendar raw response:", text);
-
-        if (!res.ok) throw new Error(text);
-
-        return text ? JSON.parse(text) : [];
-      })
-      .then((data) => {
-        console.log("calendar parsed data:", data);
-        setDefaultEvents(data);
-      })
-      .catch((err) => console.error("캘린더 가져오기 실패", err));
-  };
-
   useEffect(() => {
-    loadEvents();
-  }, []);
+    const selectedDayEvents = allEvents.filter((e) => {
+      const d = getEventDate(e);
+      return d && isSameDay(d, date);
+    });
+
+    setSelectedEvents(selectedDayEvents);
+  }, [date, defaultEvents]);
 
   return (
-    <div className="bg-[#F8FAFC] rounded-xl p-4">
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="bg-[#2563EB] text-white px-3 py-1 rounded mb-3"
-      >
-        일정 추가
-      </button>
-
-      {isModalOpen && (
-        <CalendarModal
-          selectedDate={date}
-          onClose={() => setIsModalOpen(false)}
-          onCreate={async (data) => {
-            await createEvent(data);
-            loadEvents();
-          }}
-        />
-      )}
-
+    <div className="bg-white rounded-2xl p-2 border border-[#E2E8F0] shadow-[0px_1px_3px_0px_#00000040]">
       <Calendar
-        className="!w-full rounded-xl"
+        className="w-full border-none bg-transparent"
         prev2Label={null}
         next2Label={null}
         calendarType="gregory"
         showNeighboringMonth={false}
         formatDay={(_, date) => date.getDate().toString()}
-        onChange={(value) => setDate(value as Date)}
+        onChange={(value) => {
+          setDate(value as Date);
+          setSelectedDate(value as Date);
+        }}
         value={date}
         tileContent={({ date }) => {
           const hasInterview = mergedEvents.some(
             (e) => e.type === "interview" && isSameDay(e.date, date),
           );
-
           const hasApply = mergedEvents.some(
             (e) => e.type === "apply" && isSameDay(e.date, date),
           );
-
           const hasDeadline = mergedEvents.some(
             (e) => e.type === "deadline" && isSameDay(e.date, date),
           );
-
           const hasDefault = mergedEvents.some(
             (e) => e.type === "default" && isSameDay(e.date, date),
           );
 
           return (
-            <div className="flex justify-center gap-0 mt-[0px]">
+            <div className="flex justify-center">
               {hasInterview && (
-                <div className="w-1.5 h-1.5 bg-purple-400 rounded-full" />
+                <div className="w-1.5 h-1.5 min-w-[6px] min-h-[6px] bg-[#C082F6] rounded-full" />
               )}
               {hasApply && (
-                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
+                <div className="w-1.5 h-1.5 min-w-[6px] min-h-[6px] bg-[#79AF86] rounded-full" />
               )}
               {hasDeadline && (
-                <div className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+                <div className="w-1.5 h-1.5 min-w-[6px] min-h-[6px] bg-[#E77975] rounded-full" />
               )}
               {hasDefault && (
-                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
+                <div className="w-1.5 h-1.5 min-w-[6px] min-h-[6px] bg-gray-400 rounded-full" />
               )}
             </div>
           );

@@ -1,20 +1,38 @@
-import { useEffect, useState } from "react";
+import type { Todo } from "../types/todo";
+import { useEffect, useRef, useState } from "react";
+import type { Application } from "../types/application";
 import Header from "../components/dashboard/main/Header";
-import ApplyInput from "../components/dashboard/main/ApplyInput";
-import ApplicationTable from "../components/dashboard/main/ApplicationTable";
-import RightTab from "../components/dashboard/right/RightTab";
-import PostRegistration from "../components/modal/PostRegistration";
 import CompanyInfo from "../components/modal/CompanyInfo";
+import RightTab from "../components/dashboard/right/RightTab";
 import { useApplication } from "../context/ApplicationContext";
+import ApplyInput from "../components/dashboard/main/ApplyInput";
+import PostRegistration from "../components/modal/PostRegistration";
+import ApplicationTable from "../components/dashboard/main/ApplicationTable";
 
 export default function MainScreen() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
+  const [focusedApplication, setFocusedApplication] = useState<any>(null);
+  const [editData, setEditData] = useState<any>(null);
+  const timeouts = useRef<{ [key: string]: ReturnType<typeof setTimeout> }>({});
 
   const [googleEvents, setGoogleEvents] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
-  const { addApplication, updateApplication } = useApplication();
+
+  const { loadData } = useApplication();
+  const { applications } = useApplication();
+
+  const allTodos = applications.flatMap((app) =>
+    (app.todos || []).map((todo) => ({
+      ...todo,
+      application: {
+        id: app.id,
+        company: app.company,
+        jobTitle: app.jobTitle,
+      },
+    })),
+  );
 
   useEffect(() => {
     fetch("/api/user", {
@@ -28,81 +46,93 @@ export default function MainScreen() {
       .catch(() => setUser(null));
   }, []);
 
+  const loadCalendarEvents = async () => {
+    try {
+      const res = await fetch("/api/calendar/events", {
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error();
+
+      const data = await res.json();
+      setGoogleEvents(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  useEffect(() => {
+    loadCalendarEvents();
+  }, []);
+
+  const handleAfterChange = async () => {
+    await loadData();
+
+    setTimeout(loadCalendarEvents, 300);
+  };
+
   const handleCompanyClick = (application: any) => {
     setSelectedApplication(application);
     setIsCompanyModalOpen(true);
   };
 
-  const handleEdit = (application: any) => {
-    setSelectedApplication(application);
-    setIsModalOpen(true);
-  };
-
   return (
-    <div className="bg-[#F8FAFC] min-h-screen">
-      <div className="flex">
-        <div className="flex-1 p-6">
-          {user && (
-            <>
-              <Header user={user} />
-
-              <div className="mt-6 space-y-4">
-                <ApplyInput onAdd={() => setIsModalOpen(true)} />
-
-                <ApplicationTable
-                  onAdd={() => {
-                    setSelectedApplication(null);
-                    setIsModalOpen(true);
-                  }}
-                  onEdit={handleEdit}
-                  onCompanyClick={handleCompanyClick}
-                />
-              </div>
-            </>
-          )}
-        </div>
-
+    <div className="flex w-full min-h-full overflow-hidden">
+      <div className="flex-1 min-w-0 p-6">
         {user && (
-          <div className="w-[18.05%] min-w-[240px] border-l border-gray-200 pl-6">
-            <RightTab
-              googleEvents={googleEvents}
-              setGoogleEvents={setGoogleEvents}
-            />
-          </div>
+          <>
+            <Header user={user} />
+
+            <div className="mt-6 space-y-4">
+              <ApplyInput onAdd={() => setIsModalOpen(true)} />
+
+              <ApplicationTable
+                onAdd={() => {
+                  setSelectedApplication(null);
+                  setIsModalOpen(true);
+                }}
+                onEdit={(row: Application) => {
+                  setEditData(row);
+                  setIsModalOpen(true);
+                }}
+                onDelete={() => {}}
+                onChange={handleAfterChange}
+                onCompanyClick={handleCompanyClick}
+                focusedApplication={focusedApplication}
+                setFocusedApplication={setFocusedApplication}
+              />
+            </div>
+          </>
         )}
       </div>
 
+      {user && (
+        <div className="w-[18.05%] min-w-[280px] border-l border-gray-200 p-6 bg-white/50">
+          <RightTab
+            todoData={allTodos}
+            googleEvents={googleEvents}
+            setGoogleEvents={setGoogleEvents}
+            focusedApplication={focusedApplication}
+          />
+        </div>
+      )}
+
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-2xl w-[600px]">
+          <div className="bg-white p-6 rounded-2xl w-[600px] shadow-xl">
             <PostRegistration
               initialData={selectedApplication}
               onClose={() => {
                 setIsModalOpen(false);
                 setSelectedApplication(null);
+                setEditData(null);
               }}
-              onSubmit={(data: any) => {
-                if (selectedApplication) {
-                  updateApplication(selectedApplication.id, data);
-                } else {
-                  addApplication({
-                    id: Date.now(),
-                    company: data.company || "",
-                    jobTitle: data.jobTitle || "",
-                    position: data.position || "",
-                    industry: data.industry || "",
-                    deadlineDate: data.deadlineDate || "",
-                    applyDate: data.applyDate || "",
-                    status: data.status || "진행중",
-                    memo: data.memo || "",
-                    submitted: false,
-                    checklistInComplete: true,
-                  });
-                }
-
-                setIsModalOpen(false);
-                setSelectedApplication(null);
+              onSuccess={async () => {
+                await loadData();
+                setTimeout(async () => {
+                  await loadCalendarEvents();
+                }, 500);
               }}
+              editData={editData}
             />
           </div>
         </div>
