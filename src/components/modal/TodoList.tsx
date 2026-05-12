@@ -1,7 +1,7 @@
 import type { Todo } from "../../types/todo";
 interface TodoListModalProps {
   todos: Todo[];
-  onToggle: (id: string) => void; // 체크 상태 변경 함수
+  onToggle?: (id: number) => void; // 체크 상태 변경 함수
   onClose: () => void;
 }
 
@@ -12,23 +12,22 @@ export default function TodoListModal({
 }: TodoListModalProps) {
   return (
     <div className="py-2">
-
       {/* 할 일 리스트 영역 */}
       <div className="space-y-5 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
         {todos.map((todo) => (
           <div
             key={todo.id}
             className="flex items-center gap-3 cursor-pointer group"
-            onClick={() => onToggle(todo.id)}
+            onClick={() => onToggle?.(todo.id)}
           >
             <div
               className={`w-5 h-5 rounded-full border-1.5 flex items-center justify-center transition-all ${
-                todo.isCompleted
+                todo.completed
                   ? "border-green-500 bg-transparent" // 완료 시
                   : "border-[#D9D9D9] bg-[#D9D9D9] group-hover:border-gray-400" // 미완료 시
               }`}
             >
-              {todo.isCompleted && (
+              {todo.completed && (
                 <div className="flex items-center justify-center">
                   <svg
                     className="w-3 h-3 text-green-500"
@@ -48,15 +47,20 @@ export default function TodoListModal({
             </div>
 
             {/* 할 일 제목 */}
-            <span
-              className={`text-[15px] font-medium transition-all ${
-                todo.isCompleted
-                  ? "text-gray-300 line-through"
-                  : "text-gray-700"
-              }`}
-            >
-              {todo.summary}
-            </span>
+            <div className="flex flex-col">
+              <span
+                className={`text-[15px] font-medium transition-all ${
+                  todo.completed
+                    ? "text-gray-300 line-through"
+                    : "text-gray-700"
+                }`}
+              >
+                {todo.content}
+              </span>
+              <span className="text-[12px] text-[#94A3B8]">
+                {todo.application?.company}
+              </span>
+            </div>
           </div>
         ))}
 

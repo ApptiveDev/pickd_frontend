@@ -1,5 +1,11 @@
 export interface Todo {
-  id: string;
-  summary: string;
-  isCompleted: boolean;
+  id: number;
+  content: string;
+  completed: boolean;
+
+  application?: {
+    id: number;
+    company?: string;
+    jobTitle?: string;
+  };
 }
