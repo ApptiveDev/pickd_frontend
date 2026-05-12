@@ -1,7 +1,9 @@
 export interface Todo {
   id: number;
-  content: string;
+  title: string;
   completed: boolean;
+  dueDateTime?: string;
+  memo?: string;
 
   application?: {
     id: number;

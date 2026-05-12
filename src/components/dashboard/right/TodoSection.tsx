@@ -5,6 +5,7 @@ import { useApplication } from "../../../context/ApplicationContext";
 interface TodoSectionProps {
   todos: Todo[];
   onClick: () => void;
+  onAdd: () => void;
   focusedApplication?: any;
 }
 
@@ -12,10 +13,25 @@ export default function TodoSection({
   todos,
   focusedApplication,
   onClick,
+  onAdd,
 }: TodoSectionProps) {
   const timeouts = useRef<{ [key: number]: ReturnType<typeof setTimeout> }>({});
   const [mode, setMode] = useState<"all" | "focused">("all");
   const { toggleTodo, removeTodo } = useApplication();
+
+  const formatDateTime = (dateTime?: string) => {
+    if (!dateTime) return "기한 없음";
+
+    const date = new Date(dateTime);
+
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${month}/${day} ${hours}:${minutes}`;
+  };
 
   const targetApplication = focusedApplication || todos[0]?.application;
   const filteredTodos =
@@ -58,17 +74,29 @@ export default function TodoSection({
               ? `${targetApplication?.company} 할 일`
               : "선택된 공고 할 일"}
         </h4>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setMode(mode === "all" ? "focused" : "all");
+            }}
+            className="text-sm text-gray-400 hover:text-gray-600"
+          >
+            {mode === "all" ? "선택한 공고 할 일" : "전체 할 일"}
+          </button>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setMode(mode === "all" ? "focused" : "all");
-          }}
-          className="text-sm text-gray-400 hover:text-gray-600"
-        >
-          {mode === "all" ? "선택한 공고 할 일" : "전체 할 일"}
-        </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdd();
+            }}
+            className="text-sm px-2 py-1 bg-[#2563EB] text-white rounded-md"
+          >
+            + 추가
+          </button>
+        </div>
       </div>
+
       <div
         className={`h-[220px] overflow-y-auto pr-1 ${
           filteredTodos.length === 0 ? "flex items-center justify-center" : ""
@@ -82,23 +110,20 @@ export default function TodoSection({
           </p>
         ) : (
           filteredTodos.map((t) => (
-            <div key={t.id} className="flex items-center gap-4 mb-3">
+            <div key={t.id} className="flex items-center gap-4 mb-3 last:mb-0">
               <div
                 onClick={(e) => {
                   e.stopPropagation();
                   handleToggle(t.id);
                 }}
-                className={`w-[15px] h-[15px] rounded-full flex items-center justify-center
-                      ${
-                        t.completed
-                          ? "border-2 border-green-500 bg-white"
-                          : "bg-[#D9D9D9]"
-                      }
-            `}
+                className={`
+                  w-[18px] h-[18px] rounded-full flex items-center justify-center flex-shrink-0
+                  ${t.completed ? "border-2 border-green-500 bg-white" : "bg-[#D9D9D9]"}
+                `}
               >
                 {t.completed && (
                   <svg
-                    className="w-[15px] h-[15px] text-green-500"
+                    className="w-3 h-3 text-green-500"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -106,26 +131,34 @@ export default function TodoSection({
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth="3.5"
+                      strokeWidth="4"
                       d="M5 13l4 4L19 7"
                     />
                   </svg>
                 )}
               </div>
 
-              <p
-                className={`text-base font-regular ${t.completed ? "line-through text-gray-400" : ""}`}
-              >
-                <>
+              <div className="flex flex-col gap-0.5">
+                <h3
+                  className={`text-[14px] font-semibold leading-tight ${t.completed ? "line-through text-gray-400" : "text-[#0F172A]"}`}
+                >
                   {mode === "all" && t.application?.company && (
-                    <span className="text-[#64748B] mr-1">
+                    <span
+                      className={`mr-1 ${
+                        t.completed ? "text-gray-400" : "text-[#2563EB]"
+                      }`}
+                    >
                       [{t.application.company}]
                     </span>
                   )}
 
-                  {t.content}
-                </>
-              </p>
+                  {t.title}
+                </h3>
+
+                <span className="text-[12px] text-gray-400">
+                  {formatDateTime(t.dueDateTime)}
+                </span>
+              </div>
             </div>
           ))
         )}

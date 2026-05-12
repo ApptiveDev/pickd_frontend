@@ -1,7 +1,8 @@
 import type { Todo } from "../../types/todo";
+
 interface TodoListModalProps {
   todos: Todo[];
-  onToggle?: (id: number) => void; // 체크 상태 변경 함수
+  onToggle: (id: number) => void;
   onClose: () => void;
 }
 
@@ -10,9 +11,22 @@ export default function TodoListModal({
   onToggle,
   onClose,
 }: TodoListModalProps) {
+  const formatDateTime = (dateTime?: string) => {
+    if (!dateTime) return "기한 없음";
+
+    const date = new Date(dateTime);
+
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${month}/${day} ${hours}:${minutes}`;
+  };
+
   return (
     <div className="py-2">
-      {/* 할 일 리스트 영역 */}
       <div className="space-y-5 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
         {todos.map((todo) => (
           <div
@@ -21,10 +35,10 @@ export default function TodoListModal({
             onClick={() => onToggle?.(todo.id)}
           >
             <div
-              className={`w-5 h-5 rounded-full border-1.5 flex items-center justify-center transition-all ${
+              className={`w-5 h-5 rounded-full border-1.5 flex items-center justify-center transition-all flex-shrink-0 ${
                 todo.completed
-                  ? "border-green-500 bg-transparent" // 완료 시
-                  : "border-[#D9D9D9] bg-[#D9D9D9] group-hover:border-gray-400" // 미완료 시
+                  ? "border-green-500 bg-transparent"
+                  : "border-[#D9D9D9] bg-[#D9D9D9] group-hover:border-gray-400"
               }`}
             >
               {todo.completed && (
@@ -46,20 +60,27 @@ export default function TodoListModal({
               )}
             </div>
 
-            {/* 할 일 제목 */}
-            <div className="flex flex-col">
-              <span
-                className={`text-[15px] font-medium transition-all ${
-                  todo.completed
-                    ? "text-gray-300 line-through"
-                    : "text-gray-700"
-                }`}
+            <div className="flex flex-col gap-0.5">
+              <h3
+                className={`text-[15px] font-bold leading-tight ${todo.completed ? "line-through text-gray-400" : "text-gray-800"}`}
               >
-                {todo.content}
-              </span>
-              <span className="text-[12px] text-[#94A3B8]">
-                {todo.application?.company}
-              </span>
+                {todo.application?.company && (
+                  <span
+                    className={`mr-1 ${
+                      todo.completed ? "text-gray-400" : "text-[#2563EB]"
+                    }`}
+                  >
+                    [{todo.application.company}]
+                  </span>
+                )}
+                {todo.title}
+              </h3>
+
+              <div className="flex items-center gap-3">
+                <span className="text-[12px] text-gray-400 tabular-nums font-medium">
+                  {formatDateTime(todo.dueDateTime)}
+                </span>
+              </div>
             </div>
           </div>
         ))}

@@ -81,9 +81,9 @@ export default function ApplicationMenu({ row, onEdit, onDelete }: Props) {
                 />
 
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (!todoInput.trim()) return;
-                    addTodo(row.id, todoInput);
+                    await addTodo({ title: todoInput, applicationId: row.id });
                     setTodoInput("");
                     setOpen(false);
                   }}

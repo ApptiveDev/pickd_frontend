@@ -7,7 +7,13 @@ type ContextType = {
   applications: Application[];
   deleteApplications: (ids: number[]) => Promise<void>;
   loadData: () => Promise<void>;
-  addTodo: (applicationId: number, content: string) => Promise<void>;
+  addTodo: (data: {
+    title: string;
+    dueDate?: string;
+    dueTime?: string;
+    memo?: string;
+    applicationId?: number;
+  }) => Promise<void>;
   toggleTodo: (todoId: number) => Promise<void>;
   removeTodo: (todoId: number) => Promise<void>;
 
@@ -26,8 +32,14 @@ const AppContext = createContext<ContextType | null>(null);
 export function ApplicationProvider({ children }: any) {
   const [applications, setApplications] = useState<Application[]>([]);
 
-  const addTodo = async (applicationId: number, content: string) => {
-    await createTodo(applicationId, content);
+  const addTodo = async (data: {
+    title: string;
+    dueDate?: string;
+    dueTime?: string;
+    memo?: string;
+    applicationId?: number;
+  }) => {
+    await createTodo(data);
     await loadData();
   };
 
