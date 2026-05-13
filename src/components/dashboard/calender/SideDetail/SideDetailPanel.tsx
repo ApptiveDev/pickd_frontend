@@ -6,14 +6,17 @@ import TodoItem from "./TodoItem";
 import AnnouncementItem from "./AnnouncementItem";
 
 const SideDetailPanel = () => {
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
   return (
     <div className="w-[400px] h-full bg-white border-l border-gray-200 flex flex-col">
-      {/* 1. 상단 헤더 영역 */}
       <div className="p-6 border-b border-gray-100 flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">
-            2026년 4월 13일 (월)
-          </h2>
+          <h2 className="text-xl font-bold text-gray-800">{formattedDate}</h2>
           <p className="text-sm text-gray-500 mt-1">오늘의 진행률</p>
         </div>
         <ProgressCircle percentage={13} />
