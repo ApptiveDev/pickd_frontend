@@ -4,6 +4,9 @@ interface TodoProps {
   time: string;
   priority: '긴급' | '보통';
   isOverdue?: boolean;
+  // 아래 두 줄을 추가하면 기존 로직과 충돌 없이 연동됩니다.
+  completed?: boolean;
+  onToggle?: () => void;
 }
 
 const TodoItem = ({ task, company, time, priority, isOverdue }: TodoProps) => (

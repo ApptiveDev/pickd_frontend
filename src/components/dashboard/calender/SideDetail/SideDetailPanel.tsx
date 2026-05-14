@@ -23,6 +23,11 @@ const SideDetailPanel = ({ data }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const [todos, setTodos] = useState([
+    { id: 1, text: "자기소개서 수정하기", completed: false },
+    { id: 2, text: "포트폴리오 업데이트", completed: true },
+    { id: 3, text: "기술 면접 대비 (React)", completed: false },
+  ]);
 
   useEffect(() => {
     fetch("/api/calendar/events", { credentials: "include" })
@@ -90,6 +95,12 @@ const SideDetailPanel = ({ data }: Props) => {
       (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
     );
     return diff === 0 ? "D-Day" : `D-${diff}`;
+  };
+
+  const toggleTodo = (id: number) => {
+    setTodos(todos.map(todo => 
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ));
   };
 
   const displayItems = isExpanded ? sortedList : sortedList.slice(0, 3);
@@ -170,7 +181,33 @@ const SideDetailPanel = ({ data }: Props) => {
           </div>
         </section>
 
-        {/*할 일 섹션 생략 ... */}
+        <section className="p-6">
+          <SectionHeader 
+            title="오늘의 할 일" 
+            count={todos.filter(t => !t.completed).length} 
+          />
+          <div className="mt-4 space-y-2">
+            {todos.length > 0 ? (
+              todos.map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  task={todo.text}
+                  company="회사명" 
+                  time="14:00"
+                  priority="보통" 
+                  isOverdue={false} 
+                  completed={todo.completed}
+                  onToggle={() => toggleTodo(todo.id)}
+                />
+              ))
+            ) : (
+              <p className="text-sm text-gray-400 text-center py-4">
+                할 일이 없습니다. 새로운 할 일을 추가해보세요!
+              </p>
+            )}
+          </div>
+          
+        </section>
       </div>
     </div>
   );
