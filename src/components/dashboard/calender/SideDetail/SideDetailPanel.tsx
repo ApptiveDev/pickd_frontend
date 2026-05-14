@@ -6,6 +6,7 @@ import TodoItem from "./TodoItem";
 import AnnouncementItem from "./AnnouncementItem";
 import type { Application } from "../../../../types/application";
 import type { Todo } from "../../../../types/todo";
+import ScheduleItem from "./ScheduleItem";
 
 interface Props {
   data: Application[];
@@ -57,56 +58,56 @@ const SideDetailPanel = ({ data }: Props) => {
       .catch((err) => console.error("캘린더 가져오기 실패", err));
   }, []);
 
-const combinedAnnouncements = [
-  ...data.map((app) => ({
-    id: `db-${app.id}`,
-    title: app.jobTitle,
-    company: app.company,
-    step: app.status, 
-    date: app.deadlineDate ? new Date(app.deadlineDate) : null,
-  })),
-  ...googleEvents
-    .filter(
-      (e) =>
-        (e.summary || "").includes("마감") ||
-        (e.summary || "").includes("면접") ||
-        (e.summary || "").includes("제출"),
-    )
-    .map((e) => {
-      const summary = e.summary || "";
-      
-      let step = "일반 일정";
-      if (summary.includes("면접")) step = "면접 전형";
-      else if (summary.includes("마감")) step = "지원 마감";
-      else if (summary.includes("제출")) step = "서류 제출";
+  const combinedAnnouncements = [
+    ...data.map((app) => ({
+      id: `db-${app.id}`,
+      title: app.jobTitle,
+      company: app.company,
+      step: app.status,
+      date: app.deadlineDate ? new Date(app.deadlineDate) : null,
+    })),
+    ...googleEvents
+      .filter(
+        (e) =>
+          (e.summary || "").includes("마감") ||
+          (e.summary || "").includes("면접") ||
+          (e.summary || "").includes("제출"),
+      )
+      .map((e) => {
+        const summary = e.summary || "";
 
-      const cleanTitle = summary.replace(/면접|마감|제출/g, "").trim();
+        let step = "일반 일정";
+        if (summary.includes("면접")) step = "면접 전형";
+        else if (summary.includes("마감")) step = "지원 마감";
+        else if (summary.includes("제출")) step = "서류 제출";
 
-      const words = cleanTitle.split(" ");
-      const company = words[0]; 
-      const jobTitle = words.slice(1).join(" ") || cleanTitle; 
+        const cleanTitle = summary.replace(/면접|마감|제출/g, "").trim();
 
-      return {
-        id: `google-${e.id}`,
-        title: jobTitle,
-        company: company,
-        step: step,
-        date: getEventDate(e),
-      };
-    }),
-];
+        const words = cleanTitle.split(" ");
+        const company = words[0];
+        const jobTitle = words.slice(1).join(" ") || cleanTitle;
+
+        return {
+          id: `google-${e.id}`,
+          title: jobTitle,
+          company: company,
+          step: step,
+          date: getEventDate(e),
+        };
+      }),
+  ];
 
   const handleAddTodo = (newTodoData: any) => {
     const newTodo: Todo = {
-      id: Date.now(), 
+      id: Date.now(),
       title: newTodoData.title,
       completed: false,
       dueDateTime: newTodoData.dueDateTime,
-      application: newTodoData.application, 
+      application: newTodoData.application,
       memo: newTodoData.memo,
     };
 
-    setTodos((prev) => [...prev, newTodo]); 
+    setTodos((prev) => [...prev, newTodo]);
   };
 
   const todaySchedules = combinedAnnouncements
@@ -196,19 +197,7 @@ const combinedAnnouncements = [
           <div className="mt-3 space-y-3">
             {todaySchedules.length > 0 ? (
               todaySchedules.map((schedule) => (
-                <div
-                  key={schedule.id}
-                  className="p-4 bg-gray-50 rounded-xl flex justify-between items-center group hover:bg-blue-50 transition-colors"
-                >
-                  <div>
-                    <p className="font-medium text-gray-800 text-[15px]">
-                      {schedule.title}
-                      <span className="text-gray-400 ml-2 text-sm font-normal">
-                        {schedule.company}
-                      </span>
-                    </p>
-                  </div>
-                </div>
+                <ScheduleItem key={schedule.id} schedule={schedule} />
               ))
             ) : (
               <p className="text-sm text-gray-400 text-center py-4">
@@ -222,8 +211,8 @@ const combinedAnnouncements = [
           <SectionHeader
             title="오늘의 할 일"
             count={todos.filter((t) => !t.completed).length}
-            applications={data} 
-            onConfirm={handleAddTodo} 
+            applications={data}
+            onConfirm={handleAddTodo}
           />
           <div className="mt-4 space-y-2">
             {todos.length > 0 ? (
