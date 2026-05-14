@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import ProgressCircle from "./ProgressCircle";
 import SectionHeader from "./SectionHeader";
 import TodoItem from "./TodoItem";
 import AnnouncementItem from "./AnnouncementItem";
 import type { Application } from "../../../../types/application";
+import type { Todo } from "../../../../types/todo";
 
 interface Props {
   data: Application[];
@@ -23,6 +24,31 @@ const SideDetailPanel = ({ data }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const [todos, setTodos] = useState<Todo[]>([
+    {
+      id: 1,
+      title: "자기소개서 수정하기",
+      completed: false,
+      dueDateTime: "2025-03-20T10:00:00",
+      memo: "긴급! 1번 문항 위주로 수정",
+      application: {
+        id: 101,
+        company: "구글코리아",
+        jobTitle: "프론트엔드 개발자",
+      },
+    },
+    {
+      id: 2,
+      title: "포트폴리오 업데이트",
+      completed: false,
+      dueDateTime: "2027-03-19T14:00:00",
+      application: {
+        id: 102,
+        company: "네이버",
+        jobTitle: "웹 서비스 개발",
+      },
+    },
+  ]);
 
   useEffect(() => {
     fetch("/api/calendar/events", { credentials: "include" })
@@ -40,8 +66,12 @@ const SideDetailPanel = ({ data }: Props) => {
       date: app.deadlineDate ? new Date(app.deadlineDate) : null,
     })),
     ...googleEvents
-      .filter(e => (e.summary || "").includes("마감") || (e.summary || "").includes("면접"))
-      .map(e => {
+      .filter(
+        (e) =>
+          (e.summary || "").includes("마감") ||
+          (e.summary || "").includes("면접"),
+      )
+      .map((e) => {
         const summary = e.summary || "";
         const match = summary.match(/^\[(.*?)\]\s*(\S+)\s*(.*)$/);
 
@@ -49,11 +79,11 @@ const SideDetailPanel = ({ data }: Props) => {
         let finalCompany = "";
 
         if (match) {
-          const tag = match[1];    
-          const company = match[2];  
-          const jobTitle = match[3]; 
+          const tag = match[1];
+          const company = match[2];
+          const jobTitle = match[3];
 
-          finalTitle = `[${tag}] ${jobTitle}`; 
+          finalTitle = `[${tag}] ${jobTitle}`;
           finalCompany = company;
         } else {
           finalCompany = summary.split(" ").pop() || "";
@@ -61,13 +91,26 @@ const SideDetailPanel = ({ data }: Props) => {
 
         return {
           id: `google-${e.id}`,
-          title: finalTitle,     
-          company: finalCompany,  
+          title: finalTitle,
+          company: finalCompany,
           step: summary.includes("면접") ? "면접 전형" : "마감 임박",
           date: getEventDate(e),
         };
-      })
+      }),
   ];
+
+  const handleAddTodo = (newTodoData: any) => {
+    const newTodo: Todo = {
+      id: Date.now(), 
+      title: newTodoData.title,
+      completed: false,
+      dueDateTime: newTodoData.dueDateTime,
+      application: newTodoData.application, 
+      memo: newTodoData.memo,
+    };
+
+    setTodos((prev) => [...prev, newTodo]); 
+  };
 
   const todaySchedules = combinedAnnouncements
     .filter((item) => {
@@ -90,6 +133,14 @@ const SideDetailPanel = ({ data }: Props) => {
       (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
     );
     return diff === 0 ? "D-Day" : `D-${diff}`;
+  };
+
+  const toggleTodo = (id: number) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+      ),
+    );
   };
 
   const displayItems = isExpanded ? sortedList : sortedList.slice(0, 3);
@@ -115,8 +166,8 @@ const SideDetailPanel = ({ data }: Props) => {
         <section className="p-6 border-b border-gray-100">
           <div className="flex items-center gap-1 mb-4">
             <ChevronDown size={18} className="text-gray-400" />
-            <span className="font-semibold text-gray-700">다가오는 공고</span>
-            <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">
+            <h3 className="font-bold text-gray-800 text-base">다가오는 공고</h3>
+            <span className="flex items-center justify-center w-5 h-5 bg-gray-200 text-gray-500 text-[11px] font-bold rounded-full">
               {sortedList.length}
             </span>
           </div>
@@ -153,7 +204,7 @@ const SideDetailPanel = ({ data }: Props) => {
                   className="p-4 bg-gray-50 rounded-xl flex justify-between items-center group hover:bg-blue-50 transition-colors"
                 >
                   <div>
-                    <p className="font-medium text-gray-800">
+                    <p className="font-medium text-gray-800 text-[15px]">
                       {schedule.title}
                       <span className="text-gray-400 ml-2 text-sm font-normal">
                         {schedule.company}
@@ -170,7 +221,35 @@ const SideDetailPanel = ({ data }: Props) => {
           </div>
         </section>
 
-        {/*할 일 섹션 생략 ... */}
+        <section className="p-6">
+          <SectionHeader
+            title="오늘의 할 일"
+            count={todos.filter((t) => !t.completed).length}
+            applications={data} 
+            onConfirm={handleAddTodo} 
+          />
+          <div className="mt-4 space-y-2">
+            {todos.length > 0 ? (
+              todos.map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={(id) => {
+                    setTodos((prev) =>
+                      prev.map((t) =>
+                        t.id === id ? { ...t, completed: !t.completed } : t,
+                      ),
+                    );
+                  }}
+                />
+              ))
+            ) : (
+              <p className="text-sm text-gray-400 text-center py-4">
+                할 일이 없습니다. 새로운 할 일을 추가해보세요!
+              </p>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );
