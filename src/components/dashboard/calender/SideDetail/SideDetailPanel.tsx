@@ -57,47 +57,44 @@ const SideDetailPanel = ({ data }: Props) => {
       .catch((err) => console.error("캘린더 가져오기 실패", err));
   }, []);
 
-  const combinedAnnouncements = [
-    ...data.map((app) => ({
-      id: `db-${app.id}`,
-      title: app.jobTitle,
-      company: app.company,
-      step: app.status,
-      date: app.deadlineDate ? new Date(app.deadlineDate) : null,
-    })),
-    ...googleEvents
-      .filter(
-        (e) =>
-          (e.summary || "").includes("마감") ||
-          (e.summary || "").includes("면접"),
-      )
-      .map((e) => {
-        const summary = e.summary || "";
-        const match = summary.match(/^\[(.*?)\]\s*(\S+)\s*(.*)$/);
+const combinedAnnouncements = [
+  ...data.map((app) => ({
+    id: `db-${app.id}`,
+    title: app.jobTitle,
+    company: app.company,
+    step: app.status, 
+    date: app.deadlineDate ? new Date(app.deadlineDate) : null,
+  })),
+  ...googleEvents
+    .filter(
+      (e) =>
+        (e.summary || "").includes("마감") ||
+        (e.summary || "").includes("면접") ||
+        (e.summary || "").includes("제출"),
+    )
+    .map((e) => {
+      const summary = e.summary || "";
+      
+      let step = "일반 일정";
+      if (summary.includes("면접")) step = "면접 전형";
+      else if (summary.includes("마감")) step = "지원 마감";
+      else if (summary.includes("제출")) step = "서류 제출";
 
-        let finalTitle = summary;
-        let finalCompany = "";
+      const cleanTitle = summary.replace(/면접|마감|제출/g, "").trim();
 
-        if (match) {
-          const tag = match[1];
-          const company = match[2];
-          const jobTitle = match[3];
+      const words = cleanTitle.split(" ");
+      const company = words[0]; 
+      const jobTitle = words.slice(1).join(" ") || cleanTitle; 
 
-          finalTitle = `[${tag}] ${jobTitle}`;
-          finalCompany = company;
-        } else {
-          finalCompany = summary.split(" ").pop() || "";
-        }
-
-        return {
-          id: `google-${e.id}`,
-          title: finalTitle,
-          company: finalCompany,
-          step: summary.includes("면접") ? "면접 전형" : "마감 임박",
-          date: getEventDate(e),
-        };
-      }),
-  ];
+      return {
+        id: `google-${e.id}`,
+        title: jobTitle,
+        company: company,
+        step: step,
+        date: getEventDate(e),
+      };
+    }),
+];
 
   const handleAddTodo = (newTodoData: any) => {
     const newTodo: Todo = {

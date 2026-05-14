@@ -37,20 +37,30 @@ const MainCalendar = () => {
     loadEvents();
   }, []);
 
-  const mergedEvents = [
-    ...googleEvents.map((e) => ({
-      date: getEventDate(e),
-      title: e.summary || "일정",
-      type: (e.summary || "").includes("면접")
-        ? "interview"
-        : (e.summary || "").includes("마감")
-          ? "deadline"
-          : "default",
-    })),
-  ].filter(
-    (e): e is { date: Date; title: string; type: string } =>
-      e !== null && e.date !== null,
-  );
+  const mergedEvents = googleEvents
+    .map((e) => {
+      const title = e.summary || "";
+      let type: "interview" | "deadline" | "apply" | "default" = "default";
+
+      if (title.includes("면접")) type = "interview";
+      else if (title.includes("마감")) type = "deadline";
+      else if (title.includes("제출")) type = "apply";
+
+      return {
+        date: getEventDate(e),
+        title: title || "일정",
+        type: type,
+      };
+    })
+    .filter(
+      (
+        e,
+      ): e is {
+        date: Date;
+        title: string;
+        type: "interview" | "deadline" | "apply" | "default";
+      } => e !== null && e.date !== null,
+    );
 
   return (
     <div className="w-full h-full main-calendar-container">
@@ -74,12 +84,13 @@ const MainCalendar = () => {
             <div className="flex flex-col gap-1 mt-1 w-full overflow-hidden px-1">
               {dayEvents.map((ev, i) => {
                 let colorClass = "bg-blue-50 text-blue-600 border-blue-100";
+
                 if (ev.type === "interview")
                   colorClass = "bg-purple-50 text-purple-600 border-purple-100";
-                if (ev.type === "deadline")
+                else if (ev.type === "deadline")
                   colorClass = "bg-red-50 text-red-600 border-red-100";
-                if (ev.type === "apply")
-                  colorClass = "bg-green-50 text-green-600 border-green-100";
+                else if (ev.type === "apply")
+                  colorClass = "bg-blue-50 text-blue-600 border-blue-100";
 
                 return (
                   <div
@@ -101,7 +112,7 @@ const MainCalendar = () => {
           border: none;
           font-family: inherit;
         }
-          .main-calendar-container .react-calendar__navigation__label {
+        .main-calendar-container .react-calendar__navigation__label {
           font-weight: 600;
           font-size: 1.25rem !important;
           color: #111827;
@@ -112,7 +123,7 @@ const MainCalendar = () => {
           font-size: 1.5rem;
           color: #6b7280;
           transition: color 0.2s;
-      }
+        }
         .main-calendar-container .react-calendar__tile {
           min-height: 120px; 
           display: flex;
