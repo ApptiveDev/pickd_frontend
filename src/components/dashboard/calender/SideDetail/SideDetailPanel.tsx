@@ -5,7 +5,7 @@ import SectionHeader from "./SectionHeader";
 import TodoItem from "./TodoItem";
 import AnnouncementItem from "./AnnouncementItem";
 import type { Application } from "../../../../types/application";
-import type { Todo } from '../../../../types/todo';
+import type { Todo } from "../../../../types/todo";
 
 interface Props {
   data: Application[];
@@ -29,7 +29,7 @@ const SideDetailPanel = ({ data }: Props) => {
       id: 1,
       title: "자기소개서 수정하기",
       completed: false,
-      dueDateTime: "2024-03-20T10:00:00",
+      dueDateTime: "2025-03-20T10:00:00",
       memo: "긴급! 1번 문항 위주로 수정",
       application: {
         id: 101,
@@ -40,24 +40,12 @@ const SideDetailPanel = ({ data }: Props) => {
     {
       id: 2,
       title: "포트폴리오 업데이트",
-      completed: true,
-      dueDateTime: "2024-03-19T14:00:00",
+      completed: false,
+      dueDateTime: "2027-03-19T14:00:00",
       application: {
         id: 102,
         company: "네이버",
         jobTitle: "웹 서비스 개발",
-      },
-    },
-    {
-      id: 3,
-      title: "기술 면접 대비 (React)",
-      completed: false,
-      dueDateTime: "2024-03-21T16:30:00",
-      memo: "훅(Hooks) 원리 파악하기",
-      application: {
-        id: 103,
-        company: "카카오",
-        jobTitle: "플랫폼 엔지니어",
       },
     },
   ]);
