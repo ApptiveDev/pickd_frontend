@@ -99,6 +99,19 @@ const SideDetailPanel = ({ data }: Props) => {
       }),
   ];
 
+  const handleAddTodo = (newTodoData: any) => {
+    const newTodo: Todo = {
+      id: Date.now(), 
+      title: newTodoData.title,
+      completed: false,
+      dueDateTime: newTodoData.dueDateTime,
+      application: newTodoData.application, 
+      memo: newTodoData.memo,
+    };
+
+    setTodos((prev) => [...prev, newTodo]); 
+  };
+
   const todaySchedules = combinedAnnouncements
     .filter((item) => {
       if (!item.date) return false;
@@ -212,6 +225,8 @@ const SideDetailPanel = ({ data }: Props) => {
           <SectionHeader
             title="오늘의 할 일"
             count={todos.filter((t) => !t.completed).length}
+            applications={data} 
+            onConfirm={handleAddTodo} 
           />
           <div className="mt-4 space-y-2">
             {todos.length > 0 ? (

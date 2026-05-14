@@ -7,9 +7,10 @@ interface SectionHeaderProps {
   title: string;
   count?: number;
   applications?: Application[]; 
+  onConfirm?: (data: any) => void; 
 }
 
-const SectionHeader = ({ title, count, applications = [] }: SectionHeaderProps) => {
+const SectionHeader = ({ title, count, applications = [], onConfirm }: SectionHeaderProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isTodaySchedule = title.includes("일정");
@@ -17,6 +18,7 @@ const SectionHeader = ({ title, count, applications = [] }: SectionHeaderProps) 
   const handlePostTodo = (data: any) => {
     console.log('새로운 할 일 데이터:', data);
     setIsModalOpen(false); 
+    // 백엔드 API 연결 필요 
   };
 
   return (
