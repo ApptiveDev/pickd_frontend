@@ -217,17 +217,7 @@ const SideDetailPanel = ({ data }: Props) => {
           <div className="mt-4 space-y-2">
             {todos.length > 0 ? (
               todos.map((todo) => (
-                <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={(id) => {
-                    setTodos((prev) =>
-                      prev.map((t) =>
-                        t.id === id ? { ...t, completed: !t.completed } : t,
-                      ),
-                    );
-                  }}
-                />
+                <TodoItem key={todo.id} todo={todo} onToggle={toggleTodo} />
               ))
             ) : (
               <p className="text-sm text-gray-400 text-center py-4">
