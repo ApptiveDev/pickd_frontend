@@ -31,6 +31,14 @@ export const useSidePanelData = (data: Application[]) => {
   useEffect(() => {
   const fetchData = async () => {
     try {
+      const todoData = await getTodos();
+
+      setTodos(todoData);
+    } catch (error) {
+      console.error("할 일 조회 실패:", error);
+    }
+
+    try {
       const calendarRes = await fetch("/api/calendar/events", {
         credentials: "include",
       });
@@ -40,19 +48,8 @@ export const useSidePanelData = (data: Application[]) => {
         : [];
 
       setGoogleEvents(calendarData);
-
-      const todoRes = await fetch("/api/todo", {
-        credentials: "include",
-      });
-
-      const todoData = todoRes.ok
-        ? await todoRes.json()
-        : [];
-
-      setTodos((prev) => [...prev, ...todoData]);
-
-    } catch (err) {
-      console.error("데이터 가져오기 실패", err);
+    } catch (error) {
+      console.error("캘린더 가져오기 실패:", error);
     }
   };
 
