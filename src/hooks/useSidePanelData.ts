@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Todo } from "../types/todo";
-import { createTodo, toggleTodoApi, getTodos,} from "../api/todo";
+import { createTodo, toggleTodoApi, getTodos, deleteTodoApi } from "../api/todo";
 
 import { useApplication } from "../context/ApplicationContext";
 
@@ -25,7 +25,8 @@ function getEventDate(e: any): Date | null {
 export const useSidePanelData = () => {
   const [googleEvents, setGoogleEvents] = useState<any[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const { applications } = useApplication();
+  const { applications, loadData } = useApplication();
+  
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -190,28 +191,50 @@ export const useSidePanelData = () => {
     }
   };
 
-  const toggleTodo = async (
-    id: number
-  ) => {
+  const toggleTodo = async (id: number) => {
     try {
+      const targetTodo = todos.find((t) => t.id === id);
+      if (!targetTodo) return;
       await toggleTodoApi(id);
 
       setTodos((prev) =>
         prev.map((todo) =>
-          todo.id === id
-            ? {
-                ...todo,
-                completed:
-                  !todo.completed,
-              }
-            : todo
+          todo.id === id ? { ...todo, completed: !todo.completed } : todo
         )
       );
+
+      if (!targetTodo.completed) {
+        setTimeout(async () => {
+          try {
+            await deleteTodoApi(id);
+            setTodos((prev) => prev.filter((todo) => todo.id !== id));
+            await loadData();
+          } catch (error) {
+            console.error("10초 뒤 자동 삭제 실패:", error);
+          }
+        }, 10000);
+      }
     } catch (error) {
-      console.error(
-        "할 일 상태 변경 실패:",
-        error
-      );
+      console.error("할 일 상태 변경 실패:", error);
+    }
+  };
+
+  const deleteTodo = async (id: number) => {
+    try {
+      await deleteTodoApi(id);
+      await fetchTodos();
+      await loadData(); 
+    } catch (error) {
+      console.error("할 일 삭제 실패:", error);
+    }
+  };
+
+  const fetchTodos = async () => {
+    try {
+      const todoData = await getTodos();
+      setTodos(todoData);
+    } catch (error) {
+      console.error("할 일 조회 실패:", error);
     }
   };
 
@@ -236,6 +259,7 @@ export const useSidePanelData = () => {
     todaySchedules,
     handleAddTodo,
     toggleTodo,
+    deleteTodo,
     calculateDDay,
   };
 };
