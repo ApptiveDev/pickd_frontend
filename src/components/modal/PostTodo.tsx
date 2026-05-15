@@ -5,7 +5,7 @@ interface PostTodoProps {
   onClose: () => void;
   applications: Application[];
   onConfirm: (data: {
-    summary: string;
+    title: string;
     dueDate: string;
     dueTime: string;
     applicationId: string;
@@ -19,7 +19,7 @@ export default function PostTodo({
   applications,
 }: PostTodoProps) {
   const [formData, setFormData] = useState({
-    summary: "",
+    title: "",
     dueDate: "",
     dueTime: "",
     applicationId: "",
@@ -39,7 +39,8 @@ export default function PostTodo({
   };
 
   const handleConfirm = () => {
-    if (!formData.summary.trim()) {
+    console.log("confirm clicked");
+    if (!formData.title.trim()) {
       alert("제목을 입력해주세요.");
       return;
     }
@@ -64,10 +65,10 @@ export default function PostTodo({
               제목
             </label>
             <input
-              name="summary"
+              name="title"
               type="text"
               placeholder="제목을 입력하세요"
-              value={formData.summary}
+              value={formData.title}
               onChange={handleChange}
               className="w-full border p-2 rounded-xl outline-none focus:border-blue-500"
             />

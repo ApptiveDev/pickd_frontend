@@ -181,7 +181,7 @@ export default function ApplicationRow({
             if (onChange) await onChange();
             alert("삭제되었습니다");
           }}
-          onAddDocument={(row, title) => addDocument(row.id, title)}
+          onAddDocument={addDocument}
         />
       </td>
     </tr>
