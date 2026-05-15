@@ -12,7 +12,7 @@ interface Props {
   data: Application[];
 }
 
-const SideDetailPanel = ({ data }: Props) => {
+const SideDetailPanel = ({ }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const {
@@ -23,7 +23,7 @@ const SideDetailPanel = ({ data }: Props) => {
     handleAddTodo,
     toggleTodo,
     calculateDDay,
-  } = useSidePanelData(data);
+  } = useSidePanelData();
 
   const displayItems = isExpanded
     ? sortedList
@@ -124,7 +124,6 @@ const SideDetailPanel = ({ data }: Props) => {
                 (todo) => !todo.completed,
               ).length
             }
-            applications={data}
             onConfirm={handleAddTodo}
             showAddButton={true}
           />

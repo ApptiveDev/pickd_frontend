@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import type { Application } from "../types/application";
 import type { Todo } from "../types/todo";
-import { createTodo, toggleTodoApi, getTodos } from "../api/todo";
+import { createTodo, toggleTodoApi, getTodos,} from "../api/todo";
+
+import { useApplication } from "../context/ApplicationContext";
 
 function getEventDate(e: any): Date | null {
   if (!e.start) return null;
@@ -21,48 +22,56 @@ function getEventDate(e: any): Date | null {
   return null;
 }
 
-export const useSidePanelData = (data: Application[]) => {
+export const useSidePanelData = () => {
   const [googleEvents, setGoogleEvents] = useState<any[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
+  const { applications } = useApplication();
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const todoData = await getTodos();
+    const fetchData = async () => {
+      try {
+        const todoData = await getTodos();
+        setTodos(todoData);
+      } catch (error) {
+        console.error("할 일 조회 실패:", error);
+      }
 
-      setTodos(todoData);
-    } catch (error) {
-      console.error("할 일 조회 실패:", error);
-    }
+      try {
+        const calendarRes = await fetch(
+          "/api/calendar/events",
+          {
+            credentials: "include",
+          }
+        );
 
-    try {
-      const calendarRes = await fetch("/api/calendar/events", {
-        credentials: "include",
-      });
+        const calendarData = calendarRes.ok
+          ? await calendarRes.json()
+          : [];
 
-      const calendarData = calendarRes.ok
-        ? await calendarRes.json()
-        : [];
+        setGoogleEvents(calendarData);
+      } catch (error) {
+        console.error(
+          "캘린더 가져오기 실패:",
+          error
+        );
+      }
+    };
 
-      setGoogleEvents(calendarData);
-    } catch (error) {
-      console.error("캘린더 가져오기 실패:", error);
-    }
-  };
-
-  fetchData();
-}, []);
+    fetchData();
+  }, []);
 
   const combinedAnnouncements = [
-    ...data.map((app) => ({
+    ...applications.map((app) => ({
       id: `db-${app.id}`,
       title: app.jobTitle,
       company: app.company,
       step: app.status,
-      date: app.deadlineDate ? new Date(app.deadlineDate) : null,
+      date: app.deadlineDate
+        ? new Date(app.deadlineDate)
+        : null,
     })),
 
     ...googleEvents
@@ -70,7 +79,7 @@ export const useSidePanelData = (data: Application[]) => {
         (e) =>
           (e.summary || "").includes("마감") ||
           (e.summary || "").includes("면접") ||
-          (e.summary || "").includes("제출"),
+          (e.summary || "").includes("제출")
       )
       .map((e) => {
         const summary = e.summary || "";
@@ -85,12 +94,16 @@ export const useSidePanelData = (data: Application[]) => {
           step = "서류 제출";
         }
 
-        const cleanTitle = summary.replace(/면접|마감|제출/g, "").trim();
+        const cleanTitle = summary
+          .replace(/면접|마감|제출/g, "")
+          .trim();
 
         const words = cleanTitle.split(" ");
 
         const company = words[0];
-        const jobTitle = words.slice(1).join(" ") || cleanTitle;
+        const jobTitle =
+          words.slice(1).join(" ") ||
+          cleanTitle;
 
         return {
           id: `google-${e.id}`,
@@ -107,59 +120,113 @@ export const useSidePanelData = (data: Application[]) => {
       if (!item.date) return false;
 
       return (
-        item.date.getFullYear() === today.getFullYear() &&
-        item.date.getMonth() === today.getMonth() &&
-        item.date.getDate() === today.getDate()
+        item.date.getFullYear() ===
+          today.getFullYear() &&
+        item.date.getMonth() ===
+          today.getMonth() &&
+        item.date.getDate() ===
+          today.getDate()
       );
     })
-    .sort((a, b) => a.date!.getTime() - b.date!.getTime());
+    .sort(
+      (a, b) =>
+        a.date!.getTime() -
+        b.date!.getTime()
+    );
 
   const sortedList = combinedAnnouncements
-    .filter((item) => item.date && item.date >= today)
-    .sort((a, b) => a.date!.getTime() - b.date!.getTime());
-
-  const handleAddTodo = async (newTodoData: any) => {
-  try {
-    const selectedApplication = data.find(
-      (app) => app.company === newTodoData.relatedJob,
+    .filter(
+      (item) =>
+        item.date &&
+        item.date >= today
+    )
+    .sort(
+      (a, b) =>
+        a.date!.getTime() -
+        b.date!.getTime()
     );
 
-    const createdTodo = await createTodo({
-      title: newTodoData.summary,
-      dueDate: newTodoData.dueDate,
-      dueTime: newTodoData.dueTime,
-      memo: newTodoData.memo,
-      applicationId: selectedApplication?.id,
-    });
+  const handleAddTodo = async (
+    newTodoData: any
+  ) => {
+    try {
+      const selectedApplication =
+        applications.find(
+          (app) =>
+            String(app.id) ===
+            String(
+              newTodoData.applicationId
+            )
+        );
 
-    setTodos((prev) => [...prev, createdTodo]);
-  } catch (error) {
-    console.error("할 일 생성 실패:", error);
-  }
-};
+      const createdTodo =
+        await createTodo({
+          title: newTodoData.summary,
+          dueDate:
+            newTodoData.dueDate,
+          dueTime:
+            newTodoData.dueTime,
+          memo: newTodoData.memo,
+          applicationId:
+            selectedApplication?.id,
+        });
 
-  const toggleTodo = async (id: number) => {
-  try {
-    await toggleTodoApi(id);
+      const todoWithApplication =
+        {
+          ...createdTodo,
+          application:
+            selectedApplication,
+        };
 
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id
-          ? { ...todo, completed: !todo.completed }
-          : todo,
-      ),
-    );
-  } catch (error) {
-    console.error("할 일 상태 변경 실패:", error);
-  }
-};
+      setTodos((prev) => [
+        ...prev,
+        todoWithApplication,
+      ]);
+    } catch (error) {
+      console.error(
+        "할 일 생성 실패:",
+        error
+      );
+    }
+  };
 
-  const calculateDDay = (targetDate: Date) => {
+  const toggleTodo = async (
+    id: number
+  ) => {
+    try {
+      await toggleTodoApi(id);
+
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo.id === id
+            ? {
+                ...todo,
+                completed:
+                  !todo.completed,
+              }
+            : todo
+        )
+      );
+    } catch (error) {
+      console.error(
+        "할 일 상태 변경 실패:",
+        error
+      );
+    }
+  };
+
+  const calculateDDay = (
+    targetDate: Date
+  ) => {
     const diff = Math.ceil(
-      (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+      (targetDate.getTime() -
+        today.getTime()) /
+        (1000 * 60 * 60 * 24)
     );
 
-    return diff === 0 ? "D-Day" : `D-${diff}`;
+    return diff === 0
+      ? "D-Day"
+      : `D-${diff}`;
   };
 
   return {
