@@ -39,12 +39,12 @@ const AnnouncementItem = ({
             <span
               className={`px-2 py-0.5 text-[11px] rounded-md font-medium ${
                 step.includes("면접")
-                  ? "bg-purple-50 text-purple-500"
+                  ? "bg-[#C082F6]/10 text-[#C082F6]"
                   : step.includes("제출")
-                    ? "bg-blue-50 text-blue-500"
+                    ? "bg-[#79AF86]/10 text-[#79AF86]"
                     : step.includes("마감")
-                      ? "bg-red-50 text-red-500"
-                      : "bg-gray-50 text-gray-500"
+                      ? "bg-[#E77975]/10 text-[#E77975]"
+                      : "bg-[#CBD5E1]/10 text-[#64748B]"
               }`}
             >
               {step}

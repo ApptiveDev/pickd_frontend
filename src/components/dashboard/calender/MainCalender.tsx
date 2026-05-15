@@ -97,15 +97,15 @@ const MainCalendar = () => {
 
   const getEventColor = (type: EventType) => {
     if (type === "interview") {
-      return "bg-purple-50 text-purple-600 border-purple-100";
+      return "bg-[#C082F6]/10 text-[#C082F6] border-[#C082F6]/20";
     }
 
     if (type === "deadline") {
-      return "bg-red-50 text-red-600 border-red-100";
+      return "bg-[#E77975]/10 text-[#E77975] border-[#E77975]/20";
     }
 
     if (type === "apply") {
-      return "bg-green-50 text-green-600 border-green-100";
+      return "bg-[#79AF86]/10 text-[#79AF86] border-[#79AF86]/20";
     }
 
     return "bg-blue-50 text-blue-600 border-blue-100";
