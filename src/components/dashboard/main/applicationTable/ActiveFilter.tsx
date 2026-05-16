@@ -78,7 +78,7 @@ export default function ActiveFilter({
       {show && (
         <div
           ref={filterRef}
-          className="absolute top-12 right-0 w-[280px] bg-white border border-[#E2E8F0] rounded-2xl shadow-xl p-3 z-[9999]"
+          className="absolute top-12 right-0 w-[280px] bg-white border border-[#E2E8F0] rounded-2xl shadow-xl p-3 z-[40]"
         >
           <div className="flex items-center justify-between mb-3 px-1">
             <span className="text-sm font-[600] text-[#334155]">
