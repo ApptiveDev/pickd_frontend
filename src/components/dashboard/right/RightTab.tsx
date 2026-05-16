@@ -1,7 +1,6 @@
 import { useState } from "react";
 import CalendarBox from "./CalendarBox";
 import TodoSection from "./TodoSection";
-import PostTodo from "../../modal/PostTodo";
 import TodoList from "../../modal/TodoList";
 import ScheduleSection from "./ScheduleSection";
 import ModalLayout from "../../modal/ModalLayout";
@@ -15,13 +14,11 @@ export default function RightTab({
   focusedApplication,
 }: any) {
   const [modalType, setModalType] = useState<
-    "schedule" | "todo" | "postTodo" | null
+    "schedule" | "todo" | null
   >(null);
   const [selectedEvents, setSelectedEvents] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [weeklyEvents, setWeeklyEvents] = useState<any[]>([]);
-
-  const { applications, addTodo } = useApplication();
 
   return (
     <div className="w-[95%] bg-[F8FAFC]">
@@ -43,7 +40,6 @@ export default function RightTab({
       <TodoSection
         todos={todoData}
         focusedApplication={focusedApplication}
-        onAdd={() => setModalType("postTodo")}
         onClick={() => setModalType("todo")}
       />
 
@@ -66,23 +62,6 @@ export default function RightTab({
             />
           )}
         </ModalLayout>
-      )}
-
-      {modalType === "postTodo" && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">
-          <PostTodo
-            onClose={() => setModalType(null)}
-            applications={applications}
-            onConfirm={(newData: any) => {
-              if (!newData.applicationId || !newData.title) {
-                return;
-              }
-
-              addTodo(newData);
-              setModalType(null);
-            }}
-          />
-        </div>
       )}
     </div>
   );
